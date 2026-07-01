@@ -1,1416 +1,186 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Greenlife — Dashboard</title>
-<style>
-  :root {
-    --verde:      #2E7D32;
-    --verde-pale: #E8F5E9;
-    --cinza:      #F0F2F5;
-    --cinza2:     #F8F9FA;
-    --texto:      #1A1A1A;
-    --subtexto:   #6B7280;
-    --borda:      #E5E7EB;
-    --branco:     #FFFFFF;
-    --laranja:    #F57C00;
-    --azul:       #1565C0;
-    --azul-pale:  #E3F2FD;
-    --roxo:       #6A1B9A;
-    --roxo-pale:  #F3E5F5;
-  }
-  * { box-sizing:border-box; margin:0; padding:0; }
-  body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-          background:var(--cinza); color:var(--texto); min-height:100vh; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Greenlife BI — Acesso</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  /* HEADER */
-  .topbar { background:#1B3A2F; padding:0 32px; display:flex; align-items:center;
-             gap:24px; height:60px; position:sticky; top:0; z-index:100;
-             box-shadow:0 2px 8px rgba(0,0,0,.18); }
-  .logo-mark { width:34px; height:34px; background:#4CAF50; border-radius:8px;
-                display:flex; align-items:center; justify-content:center;
-                color:white; font-weight:800; font-size:16px; flex-shrink:0; }
-  .topbar-title { font-size:16px; font-weight:700; color:#fff; }
-  .tabs { margin-left:auto; display:flex; gap:4px; }
-  .tab { padding:6px 18px; border-radius:8px; font-size:14px; font-weight:500;
-          cursor:pointer; color:rgba(255,255,255,.65); background:none; border:none;
-          transition:background .15s,color .15s; }
-  .tab:hover { background:rgba(255,255,255,.12); color:#fff; }
-  .tab.active { background:#4CAF50; color:white; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0f1117;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
 
-  /* BACK BAR */
-  .back-bar { display:flex; align-items:center; gap:8px; padding:10px 0 4px;
-               margin-bottom:8px; }
-  .back-btn { background:var(--cinza2); border:1px solid var(--borda); border-radius:8px;
-               padding:5px 12px; font-size:13px; font-weight:600; color:var(--texto);
-               cursor:pointer; transition:background .15s; }
-  .back-btn:hover { background:var(--borda); }
-  .back-sep { color:var(--subtexto); }
-  .back-label { font-size:13px; font-weight:600; color:var(--subtexto); }
+    .bg-glow {
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 20% 40%, rgba(16,185,129,0.08) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 40% at 80% 70%, rgba(5,150,105,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
 
-  /* CONTENT */
-  .page { display:none; padding:20px 28px; }
-  .page.active { display:block; }
+    .card {
+      position: relative;
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 16px;
+      padding: 48px 40px 40px;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+    }
 
-  /* SECTION LABEL */
-  .section-label { font-size:13px; font-weight:700; text-transform:uppercase;
-                    letter-spacing:.8px; color:var(--texto); margin-bottom:10px;
-                    padding:7px 14px; background:var(--branco); border:1px solid var(--borda);
-                    border-left:4px solid var(--verde); border-radius:0 8px 8px 0;
-                    box-shadow:0 1px 3px rgba(0,0,0,.04); }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
 
-  /* VER MAIS */
-  .ver-mais-btn { border:none; border-radius:20px; padding:5px 14px;
-                   font-size:12px; font-weight:600; cursor:pointer; transition:opacity .15s; }
-  .ver-mais-btn:hover { opacity:.75; }
-  .ver-mais-blue   { background:var(--azul-pale);  color:var(--azul); }
-  .ver-mais-purple { background:var(--roxo-pale);  color:var(--roxo); }
-  .ver-mais-green  { background:var(--verde-pale); color:var(--verde); }
+    .logo-mark {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 16px;
+      color: #fff;
+      letter-spacing: -0.5px;
+      flex-shrink: 0;
+    }
 
-  /* BIG CARDS */
-  .big-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
-                gap:10px; margin-bottom:8px; }
-  .big-card { background:var(--branco); border-radius:12px; padding:14px 18px;
-               border:1px solid var(--borda); box-shadow:0 1px 4px rgba(0,0,0,.05); }
-  .big-card.green  { border-top:3px solid var(--verde); }
-  .big-card.orange { border-top:3px solid var(--laranja); }
-  .big-card.blue   { border-top:3px solid var(--azul); }
-  .big-card.purple { border-top:3px solid var(--roxo); }
-  .bc-label { font-size:11px; color:var(--subtexto); text-transform:uppercase;
-               letter-spacing:.5px; margin-bottom:6px; }
-  .bc-valor { font-size:28px; font-weight:800; line-height:1; }
-  .big-card.green  .bc-valor { color:var(--verde); }
-  .big-card.orange .bc-valor { color:var(--laranja); }
-  .big-card.blue   .bc-valor { color:var(--azul); }
-  .big-card.purple .bc-valor { color:var(--roxo); }
-  .bc-sub { font-size:12px; color:var(--subtexto); margin-top:8px; }
-  .bc-detail { margin-top:14px; padding-top:12px; border-top:1px solid var(--borda); }
-  .bc-detail-row { display:flex; justify-content:space-between; font-size:12px;
-                    color:var(--subtexto); padding:3px 0; }
-  .bc-detail-row span:last-child { font-weight:600; color:var(--texto); }
+    .logo-text { line-height: 1.2; }
+    .logo-title { font-size: 15px; font-weight: 700; color: #e6edf3; }
+    .logo-sub { font-size: 12px; color: #7d8590; }
 
-  /* PANEL */
-  .panel { background:var(--branco); border-radius:14px; border:1px solid var(--borda);
-            box-shadow:0 1px 4px rgba(0,0,0,.05); overflow:hidden; margin-bottom:20px; }
-  .panel-header { padding:16px 24px; border-bottom:1px solid var(--borda);
-                   display:flex; align-items:center; gap:10px; }
-  .panel-header h2 { font-size:15px; font-weight:700; }
-  .panel-header p  { font-size:12px; color:var(--subtexto); margin-top:2px; }
-  .dot { width:8px; height:8px; border-radius:50%; background:var(--verde); flex-shrink:0; }
-  .blue-dot { background:var(--azul); }
+    h1 { font-size: 20px; font-weight: 700; color: #e6edf3; margin-bottom: 6px; }
+    p.desc { font-size: 13px; color: #7d8590; margin-bottom: 28px; }
 
-  /* TABLE */
-  .table-wrap { overflow-x:auto; }
-  table { width:100%; border-collapse:collapse; }
-  th { font-size:11px; text-transform:uppercase; letter-spacing:.5px; color:var(--subtexto);
-        padding:10px 16px; text-align:left; background:var(--cinza2); white-space:nowrap; }
-  th.num, td.num { text-align:right; }
-  td { padding:12px 16px; font-size:14px; border-top:1px solid var(--borda); white-space:nowrap; }
-  tr:hover td { background:var(--cinza2); }
-  td.rank    { color:var(--subtexto); font-size:12px; width:36px; }
-  td.td-nome { font-weight:600; }
-  .green-txt { color:var(--verde); font-weight:700; }
-  .blue-txt  { color:var(--azul);  font-weight:700; }
-  .badge { background:var(--verde-pale); color:var(--verde); padding:2px 10px;
-             border-radius:20px; font-size:12px; font-weight:600; }
-  .empty { padding:40px; text-align:center; color:var(--subtexto); font-size:14px; }
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #7d8590;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
 
-  /* INFO BADGE */
-  .info-badge {
-    display:inline-flex; align-items:center; justify-content:center;
-    width:13px; height:13px; border-radius:50%;
-    background:var(--subtexto); color:#fff;
-    font-size:8px; font-weight:700; font-style:italic;
-    vertical-align:middle; opacity:.55; cursor:default;
-    margin-left:3px; flex-shrink:0;
-    transition:opacity .15s;
-  }
-  .info-badge:hover { opacity:1; }
+    .input-wrap { position: relative; margin-bottom: 20px; }
 
-  /* SORTABLE TH */
-  .th-sort { cursor:pointer; user-select:none; transition:background .1s; position:relative; padding-right:22px; }
-  .th-sort:hover { background:var(--cinza); color:var(--texto); }
-  .th-sort::after { content:'⇅'; position:absolute; right:6px; top:50%; transform:translateY(-50%);
-                     font-size:9px; opacity:.35; font-weight:400; }
-  .th-sort.s-asc::after  { content:'▲'; opacity:.8; color:var(--azul); }
-  .th-sort.s-desc::after { content:'▼'; opacity:.8; color:var(--azul); }
+    input[type="password"], input[type="text"] {
+      width: 100%;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 12px 44px 12px 14px;
+      font-size: 15px;
+      color: #e6edf3;
+      outline: none;
+      transition: border-color 0.2s;
+    }
 
-  /* VIEW BUTTONS */
-  .view-btns { display:flex; gap:4px; }
-  .pill { font-size:12px; font-weight:600; padding:4px 12px; border-radius:20px;
-           border:1px solid var(--borda); background:var(--cinza2); color:var(--subtexto);
-           cursor:pointer; transition:all .15s; white-space:nowrap; }
-  .pill:hover { background:var(--borda); color:var(--texto); }
-  .pill.active { background:var(--verde); color:white; border-color:var(--verde); }
+    input:focus { border-color: #10b981; }
 
-  /* LAYOUT */
-  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
-  .period-bar { font-size:13px; color:var(--subtexto); margin-bottom:16px;
-                 display:flex; align-items:center; gap:8px; }
-  .period-badge { background:var(--azul-pale); color:var(--azul); padding:2px 10px;
-                   border-radius:20px; font-size:12px; font-weight:600; }
+    .toggle-pw {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #7d8590;
+      background: none;
+      border: none;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+    }
+    .toggle-pw:hover { color: #e6edf3; }
 
-  footer { text-align:center; padding:24px; font-size:12px; color:var(--subtexto); }
+    .error { font-size: 12px; color: #f85149; margin-top: -12px; margin-bottom: 16px; display: none; }
 
-  @media (max-width:900px) {
-    .two-col { grid-template-columns:1fr; }
-    .tabs { margin-left:0; }
-    .topbar { flex-wrap:wrap; height:auto; padding:12px 16px; gap:12px; }
-    .page { padding:16px; }
-  }
-</style>
+    button.btn-login {
+      width: 100%;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 13px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    button.btn-login:hover { opacity: 0.92; }
+    button.btn-login:active { transform: scale(0.98); }
+
+    .footer { margin-top: 24px; text-align: center; font-size: 11px; color: #484f58; }
+  </style>
 </head>
 <body>
+  <div class="bg-glow"></div>
+  <div class="card">
+    <div class="logo">
+      <div class="logo-mark">GL</div>
+      <div class="logo-text">
+        <div class="logo-title">Greenlife Academias</div>
+        <div class="logo-sub">BI &amp; Marketing</div>
+      </div>
+    </div>
 
-<div class="topbar">
-  <div class="logo-mark" onclick="showTab('geral',document.getElementById('tab-geral'))" style="cursor:pointer">GL</div>
-  <div class="topbar-title" onclick="showTab('geral',document.getElementById('tab-geral'))" style="cursor:pointer">Greenlife Dashboard</div>
-  <div class="tabs">
-    <button class="tab active" id="tab-geral"      onclick="showTab('geral',this)">Visão Geral</button>
-    <button class="tab"        id="tab-instagram"  onclick="showTab('instagram',this)">Instagram</button>
-    <button class="tab"        id="tab-parceiros"  onclick="showTab('parceiros',this)">Parceiros</button>
-    <button class="tab"        id="tab-leads"      onclick="showTab('leads',this)">Leads Pacto</button>
+    <h1>Bem-vindo</h1>
+    <p class="desc">Digite a senha para acessar o dashboard.</p>
+
+    <label for="pw">Senha</label>
+    <div class="input-wrap">
+      <input type="password" id="pw" placeholder="••••••••••••" autofocus
+             onkeydown="if(event.key==='Enter')entrar()">
+      <button class="toggle-pw" onclick="togglePw()" tabindex="-1" title="Mostrar/ocultar">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+      </button>
+    </div>
+    <div class="error" id="err">Senha incorreta. Tente novamente.</div>
+
+    <button class="btn-login" onclick="entrar()">Entrar</button>
+
+    <div class="footer">Greenlife Academias &copy; 2026</div>
   </div>
-</div>
 
-<div id="geral"      class="page active">
-    <div class="cards-section">
-      
-      <div class="section-label">Leads CRM Pacto &nbsp;·&nbsp; atualizado em 01/07/2026 13:49</div>
-      <div style="display:grid; grid-template-columns:2fr 1fr; gap:10px; margin-bottom:8px">
-        <div class="big-card blue" style="padding:14px 18px">
-          <div class="bc-label">Tendência — Total Rede</div>
-          <canvas id="chart-leads-mini" style="max-height:140px"></canvas>
-        </div>
-        <div class="big-card blue">
-          <div class="bc-label">Leads 07/2026</div>
-          <div class="bc-valor">50</div>
-          <div class="bc-sub">mês atual · parcial</div>
-          <div class="bc-detail">
-            <div class="bc-detail-row"><span>Meta até hoje</span><span>209</span></div>
-            <div class="bc-detail-row"><span>vs meta</span><span style="color:#CC0000;font-weight:700">-159</span></div>
-            <div class="bc-detail-row"><span>Meta do mês</span><span>4.800</span></div>
-          </div>
-        </div>
-      </div>
-      <div style="text-align:right;margin-bottom:16px">
-        <button class="ver-mais-btn ver-mais-blue" onclick="showTab('leads','tab-leads')">Ver mais →</button>
-      </div>
+  <script>
+    const HASH = "087dfe823a4378f422ea8f4a99f2b0e73aa1084f1cbe5a2e9b71399868d4b368";
 
-      <div class="section-label" style="margin-top:12px">Instagram &nbsp;·&nbsp; S27/2026 &nbsp;·&nbsp; 01/07/2026 → 01/07/2026</div>
-      <div class="big-cards">
-        <div class="big-card purple">
-          <div class="bc-label">Total Seguidores</div>
-          <div class="bc-valor">241.373</div><div class="bc-sub">soma dos 5 perfis · meta do mês: 252.939</div><div style="margin-top:6px;padding:6px 10px;border-radius:8px;background:var(--cinza2);font-size:12px;color:var(--subtexto)">Meta até hoje (1 d.u.): <strong style="color:var(--texto)">241.416</strong>&nbsp;&nbsp;<span style="color:#CC0000;font-weight:700">-43</span></div>
-          <div class="bc-detail">
-            <div class="bc-detail-row"><span>Academias</span><span>117.014<span style="color:var(--subtexto);font-size:11px"> meta: 117.132</span><span style="color:#CC0000;font-size:11px;font-weight:600"> -118</span></span></div><div class="bc-detail-row"><span>São Paulo</span><span>29.666<span style="color:var(--subtexto);font-size:11px"> meta: 29.432</span><span style="color:#2E7D32;font-size:11px;font-weight:600"> +234</span></span></div><div class="bc-detail-row"><span>Family</span><span>65.775<span style="color:var(--subtexto);font-size:11px"> meta: 65.870</span><span style="color:#CC0000;font-size:11px;font-weight:600"> -95</span></span></div><div class="bc-detail-row"><span>Personal</span><span>6.986<span style="color:var(--subtexto);font-size:11px"> meta: 7.005</span><span style="color:#CC0000;font-size:11px;font-weight:600"> -19</span></span></div><div class="bc-detail-row"><span>CT</span><span>21.932<span style="color:var(--subtexto);font-size:11px"> meta: 21.977</span><span style="color:#CC0000;font-size:11px;font-weight:600"> -45</span></span></div>
-          </div>
-        </div>
-        <div class="big-card purple">
-          <div class="bc-label">Total Interações</div>
-          <div class="bc-valor">297</div><div class="bc-sub">soma dos 5 perfis · meta do mês: 24.228</div><div style="margin-top:6px;padding:6px 10px;border-radius:8px;background:var(--cinza2);font-size:12px;color:var(--subtexto)">Meta até dia 1: <strong style="color:var(--texto)">782</strong>&nbsp;&nbsp;<span style="color:#CC0000;font-weight:700">-485</span></div>
-          <div class="bc-detail"><div class="bc-detail-row"><span>Academias</span><span>74<span style="color:var(--subtexto);font-size:11px"> meta: 200</span><span style="color:#CC0000;font-size:11px;font-weight:600"> -126</span></span></div><div class="bc-detail-row"><span>São Paulo</span><span>132<span style="color:var(--subtexto);font-size:11px"> meta: 354</span><span style="color:#CC0000;font-size:11px;font-weight:600"> -222</span></span></div><div class="bc-detail-row"><span>Family</span><span>26<span style="color:var(--subtexto);font-size:11px"> meta: 95</span><span style="color:#CC0000;font-size:11px;font-weight:600"> -69</span></span></div><div class="bc-detail-row"><span>Personal</span><span>20<span style="color:var(--subtexto);font-size:11px"> meta: 26</span><span style="color:#CC0000;font-size:11px;font-weight:600"> -6</span></span></div><div class="bc-detail-row"><span>CT</span><span>45<span style="color:var(--subtexto);font-size:11px"> meta: 106</span><span style="color:#CC0000;font-size:11px;font-weight:600"> -61</span></span></div></div>
-        </div>
-      </div>
-      <div style="text-align:right;margin-bottom:16px">
-        <button class="ver-mais-btn ver-mais-purple" onclick="showTab('instagram','tab-instagram')">Ver mais →</button>
-      </div>
-
-      <div class="section-label" style="margin-top:12px">Clube de Vantagens &nbsp;·&nbsp; atualizado em 01/07/2026 16:50</div>
-      <div class="big-cards">
-        <div class="big-card green">
-          <div class="bc-label">Parceiros</div>
-          <div class="bc-valor">684</div>
-          <div class="bc-sub">167 com usuário · 517 sem</div>
-        </div>
-        <div class="big-card green">
-          <div class="bc-label">Promoções</div>
-          <div class="bc-valor">816</div>
-          <div class="bc-sub">cadastradas</div>
-        </div>
-        <div class="big-card green">
-          <div class="bc-label">Cupons Gerados</div>
-          <div class="bc-valor">6056</div>
-          <div class="bc-sub">desde o início</div>
-        </div>
-        <div class="big-card orange">
-          <div class="bc-label">Cupons Utilizados</div>
-          <div class="bc-valor">181</div>
-          <div class="bc-sub">resgates confirmados</div>
-        </div>
-      </div>
-      <div style="text-align:right">
-        <button class="ver-mais-btn ver-mais-green" onclick="showTab('parceiros','tab-parceiros')">Ver mais →</button>
-      </div>
-    </div></div>
-<div id="instagram"  class="page">
-    <div class="back-bar">
-      <button class="back-btn" onclick="showTab('geral','tab-geral')">← Visão Geral</button>
-      <span class="back-sep">/</span><span class="back-label">Instagram</span>
-    </div>
-    <div class="period-bar">
-      <span class="period-badge">S27/2026</span>
-      01/07/2026 → 01/07/2026
-    </div>
-    <div class="panel">
-      <div class="panel-header">
-        <div class="dot blue-dot"></div>
-        <div><h2>Métricas por Perfil</h2><p>Acumulado do mês até a última coleta</p></div>
-      </div>
-      <div class="table-wrap">
-        <table id="tbl-ig">
-          <thead>
-            <tr>
-              <th class="th-sort" onclick="sortTable('tbl-ig',0)">Perfil</th>
-              <th class="th-sort num" onclick="sortTable('tbl-ig',1)">Seguidores</th>
-              <th class="th-sort num" onclick="sortTable('tbl-ig',2)">Meta / vs</th>
-              <th class="th-sort num" onclick="sortTable('tbl-ig',3)">Crescimento</th>
-              <th class="th-sort num" onclick="sortTable('tbl-ig',4)">Total Interações <span class="info-badge" title="Inclui stories, reels e ações de perfil">i</span></th>
-              <th class="th-sort num" onclick="sortTable('tbl-ig',5)">Curtidas</th>
-              <th class="th-sort num" onclick="sortTable('tbl-ig',6)">Comentários</th>
-              <th class="th-sort num" onclick="sortTable('tbl-ig',7)">Compartilh.</th>
-              <th class="th-sort num" onclick="sortTable('tbl-ig',8)">Salvamentos</th>
-              <th class="th-sort num" onclick="sortTable('tbl-ig',9)">Posts</th>
-            </tr>
-          </thead>
-          <tbody>
-        <tr>
-          <td class="td-nome">Academias</td>
-          <td class="num">117.014</td>
-          <td class="num"><span style="color:var(--subtexto)">117.132</span>&nbsp;<span style="color:#CC0000;font-weight:700;font-size:11px">-118</span></td>
-          <td class="num">+136</td>
-          <td class="num blue-txt">74</td>
-          <td class="num">0</td>
-          <td class="num">0</td>
-          <td class="num">0</td>
-          <td class="num">3</td>
-          <td class="num">0</td>
-        </tr>
-        <tr>
-          <td class="td-nome">São Paulo</td>
-          <td class="num">29.666</td>
-          <td class="num"><span style="color:var(--subtexto)">29.432</span>&nbsp;<span style="color:#2E7D32;font-weight:700;font-size:11px">+234</span></td>
-          <td class="num">+298</td>
-          <td class="num blue-txt">132</td>
-          <td class="num">0</td>
-          <td class="num">0</td>
-          <td class="num">0</td>
-          <td class="num">4</td>
-          <td class="num">0</td>
-        </tr>
-        <tr>
-          <td class="td-nome">Family</td>
-          <td class="num">65.775</td>
-          <td class="num"><span style="color:var(--subtexto)">65.870</span>&nbsp;<span style="color:#CC0000;font-weight:700;font-size:11px">-95</span></td>
-          <td class="num">+48</td>
-          <td class="num blue-txt">26</td>
-          <td class="num">0</td>
-          <td class="num">0</td>
-          <td class="num">0</td>
-          <td class="num">4</td>
-          <td class="num">0</td>
-        </tr>
-        <tr>
-          <td class="td-nome">Personal</td>
-          <td class="num">6.986</td>
-          <td class="num"><span style="color:var(--subtexto)">7.005</span>&nbsp;<span style="color:#CC0000;font-weight:700;font-size:11px">-19</span></td>
-          <td class="num">-4</td>
-          <td class="num blue-txt">20</td>
-          <td class="num">0</td>
-          <td class="num">0</td>
-          <td class="num">0</td>
-          <td class="num">0</td>
-          <td class="num">0</td>
-        </tr>
-        <tr>
-          <td class="td-nome">CT</td>
-          <td class="num">21.932</td>
-          <td class="num"><span style="color:var(--subtexto)">21.977</span>&nbsp;<span style="color:#CC0000;font-weight:700;font-size:11px">-45</span></td>
-          <td class="num">+3</td>
-          <td class="num blue-txt">45</td>
-          <td class="num">0</td>
-          <td class="num">0</td>
-          <td class="num">0</td>
-          <td class="num">0</td>
-          <td class="num">0</td>
-        </tr></tbody>
-        </table>
-      </div>
-      <div style="padding:8px 16px 10px;font-size:11px;color:var(--subtexto)">
-        ⓘ Total Interações vem diretamente da API da Meta e inclui interações além das colunas acima: respostas a stories, tapadas (forward/back), plays de reels, visitas ao perfil e cliques em links. Os dados detalhados (curtidas, comentários, etc.) são coletados por publicação individual.
-      </div>
-    </div>
-    <div class="panel" style="margin-bottom:24px">
-      <div class="panel-header">
-        <div class="dot blue-dot"></div>
-        <div><h2>Evolução por Indicador</h2><p>Acumulado mensal — último registro de cada mês</p></div>
-        <div style="margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <div class="view-btns">
-            <button class="pill active" id="ig-btn-perfil" onclick="setIgView('perfil',this)">Por Perfil</button>
-            <button class="pill" id="ig-btn-rede" onclick="setIgView('rede',this)">Visão Rede</button>
-          </div>
-          <select id="ig-select" onchange="updateIgChart()" style="font-size:13px;padding:6px 12px;border-radius:8px;border:1px solid var(--borda);background:var(--cinza2);color:var(--texto);cursor:pointer">
-            <option value="total_seguidores">Total Seguidores</option>
-<option value="crescimento">Crescimento Líquido</option>
-<option value="total_int">Total Interações (API)</option>
-<option value="curtidas">Curtidas</option>
-<option value="comentarios">Comentários</option>
-<option value="compartilhamentos">Compartilhamentos</option>
-<option value="salvamentos">Salvamentos</option>
-<option value="posts">Posts no Período</option>
-          </select>
-        </div>
-      </div>
-      <div style="padding:24px">
-        <canvas id="ig-chart" height="90"></canvas>
-      </div>
-    </div></div>
-<div id="parceiros"  class="page">
-    <div class="back-bar">
-      <button class="back-btn" onclick="showTab('geral','tab-geral')">← Visão Geral</button>
-      <span class="back-sep">/</span><span class="back-label">Parceiros</span>
-    </div>
-    <div class="period-bar">Dados extraídos de parceirogreenlife.com.br &nbsp;·&nbsp; atualizado em 01/07/2026 16:50</div>
-    <div class="big-cards" style="margin-bottom:24px">
-      <div class="big-card green">
-        <div class="bc-label">Parceiros</div>
-        <div class="bc-valor">684</div>
-        <div class="bc-sub">167 com usuário · 517 sem</div>
-      </div>
-      <div class="big-card green">
-        <div class="bc-label">Promoções</div>
-        <div class="bc-valor">816</div>
-        <div class="bc-sub">cadastradas</div>
-      </div>
-      <div class="big-card green">
-        <div class="bc-label">Cupons Gerados</div>
-        <div class="bc-valor">6056</div>
-        <div class="bc-sub">desde o início</div>
-      </div>
-      <div class="big-card orange">
-        <div class="bc-label">Cupons Utilizados</div>
-        <div class="bc-valor">181</div>
-        <div class="bc-sub">resgates confirmados</div>
-      </div>
-    </div>
-    <div class="two-col">
-      <div class="panel">
-        <div class="panel-header">
-          <div class="dot"></div>
-          <div><h2>Cupons por Parceiro</h2><p>Parceiros com pelo menos 1 resgate</p></div>
-        </div>
-        <div class='table-wrap'><table id='tbl-parceiros'><thead><tr><th></th><th class='th-sort' onclick="sortTable('tbl-parceiros',1)">Parceiro</th><th class='th-sort num' onclick="sortTable('tbl-parceiros',2)">Gerados</th><th class='th-sort num' onclick="sortTable('tbl-parceiros',3)">Utilizados</th><th class='th-sort num' onclick="sortTable('tbl-parceiros',4)">Taxa</th></tr></thead><tbody>
-        <tr>
-          <td class="rank">#1</td>
-          <td class="td-nome">MARIA PITANGA AÇAITERIA</td>
-          <td class="num">160</td>
-          <td class="num green-txt">36</td>
-          <td class="num"><span class="badge">22.5%</span></td>
-        </tr>
-        <tr>
-          <td class="rank">#2</td>
-          <td class="td-nome">TFC Coffee e Mini Market</td>
-          <td class="num">41</td>
-          <td class="num green-txt">33</td>
-          <td class="num"><span class="badge">80.5%</span></td>
-        </tr>
-        <tr>
-          <td class="rank">#3</td>
-          <td class="td-nome">MASSAJI</td>
-          <td class="num">45</td>
-          <td class="num green-txt">31</td>
-          <td class="num"><span class="badge">68.9%</span></td>
-        </tr>
-        <tr>
-          <td class="rank">#4</td>
-          <td class="td-nome">4 Estylo's Pizzaria</td>
-          <td class="num">37</td>
-          <td class="num green-txt">20</td>
-          <td class="num"><span class="badge">54.1%</span></td>
-        </tr>
-        <tr>
-          <td class="rank">#5</td>
-          <td class="td-nome">ANIS DA TERRA</td>
-          <td class="num">7</td>
-          <td class="num green-txt">6</td>
-          <td class="num"><span class="badge">85.7%</span></td>
-        </tr>
-        <tr>
-          <td class="rank">#6</td>
-          <td class="td-nome">COCO BAMBU | BEIRA MAR</td>
-          <td class="num">150</td>
-          <td class="num green-txt">5</td>
-          <td class="num"><span class="badge">3.3%</span></td>
-        </tr>
-        <tr>
-          <td class="rank">#7</td>
-          <td class="td-nome">TREVO AÇAÍ</td>
-          <td class="num">136</td>
-          <td class="num green-txt">2</td>
-          <td class="num"><span class="badge">1.5%</span></td>
-        </tr>
-        <tr>
-          <td class="rank">#8</td>
-          <td class="td-nome">CASA BAUDUCCO</td>
-          <td class="num">129</td>
-          <td class="num green-txt">2</td>
-          <td class="num"><span class="badge">1.6%</span></td>
-        </tr>
-        <tr>
-          <td class="rank">#9</td>
-          <td class="td-nome">Azilados Casa de Sanduíche</td>
-          <td class="num">60</td>
-          <td class="num green-txt">1</td>
-          <td class="num"><span class="badge">1.7%</span></td>
-        </tr>
-        <tr>
-          <td class="rank">#10</td>
-          <td class="td-nome">MAX LAB MEDICINA DIAGNÓSTICA</td>
-          <td class="num">2</td>
-          <td class="num green-txt">1</td>
-          <td class="num"><span class="badge">50.0%</span></td>
-        </tr></tbody></table></div>
-        <div style="padding:8px 16px 12px;font-size:11px;color:var(--subtexto)">Ranking acumulado — sem quebra mensal por parceiro</div>
-      </div>
-      <div class="panel">
-        <div class="panel-header">
-          <div class="dot"></div>
-          <div><h2>Cupons por Mês</h2><p>Cupons gerados e utilizados por mês</p></div>
-        </div>
-        <div class="table-wrap">
-          <table id="tbl-mensal">
-            <thead>
-              <tr>
-                <th class="th-sort" onclick="sortTable('tbl-mensal',0)">Mês</th>
-                <th class="th-sort num" onclick="sortTable('tbl-mensal',1)">Gerados</th>
-                <th class="th-sort num" onclick="sortTable('tbl-mensal',2)">Utilizados</th>
-                <th class="th-sort num" onclick="sortTable('tbl-mensal',3)">Taxa</th>
-              </tr>
-            </thead>
-            <tbody>
-        <tr>
-          <td class="td-nome" data-sort="202607">Julho/2026</td>
-          <td class="num">2</td>
-          <td class="num green-txt">0</td>
-          <td class="num"><span class="badge">0.0%</span></td>
-        </tr>
-        <tr>
-          <td class="td-nome" data-sort="202606">Junho/2026</td>
-          <td class="num">206</td>
-          <td class="num green-txt">2</td>
-          <td class="num"><span class="badge">1.0%</span></td>
-        </tr>
-        <tr>
-          <td class="td-nome" data-sort="202605">Maio/2026</td>
-          <td class="num">202</td>
-          <td class="num green-txt">7</td>
-          <td class="num"><span class="badge">3.5%</span></td>
-        </tr>
-        <tr>
-          <td class="td-nome" data-sort="202604">Abril/2026</td>
-          <td class="num">196</td>
-          <td class="num green-txt">8</td>
-          <td class="num"><span class="badge">4.1%</span></td>
-        </tr>
-        <tr>
-          <td class="td-nome" data-sort="202603">Março/2026</td>
-          <td class="num">265</td>
-          <td class="num green-txt">8</td>
-          <td class="num"><span class="badge">3.0%</span></td>
-        </tr>
-        <tr>
-          <td class="td-nome" data-sort="202602">Fevereiro/2026</td>
-          <td class="num">235</td>
-          <td class="num green-txt">22</td>
-          <td class="num"><span class="badge">9.4%</span></td>
-        </tr>
-        <tr>
-          <td class="td-nome" data-sort="202601">Janeiro/2026</td>
-          <td class="num">294</td>
-          <td class="num green-txt">8</td>
-          <td class="num"><span class="badge">2.7%</span></td>
-        </tr>
-        <tr>
-          <td class="td-nome" data-sort="202512">Dezembro/2025</td>
-          <td class="num">227</td>
-          <td class="num green-txt">9</td>
-          <td class="num"><span class="badge">4.0%</span></td>
-        </tr>
-        <tr>
-          <td class="td-nome" data-sort="202511">Novembro/2025</td>
-          <td class="num">226</td>
-          <td class="num green-txt">4</td>
-          <td class="num"><span class="badge">1.8%</span></td>
-        </tr>
-        <tr>
-          <td class="td-nome" data-sort="202510">Outubro/2025</td>
-          <td class="num">283</td>
-          <td class="num green-txt">7</td>
-          <td class="num"><span class="badge">2.5%</span></td>
-        </tr>
-        <tr>
-          <td class="td-nome" data-sort="202509">Setembro/2025</td>
-          <td class="num">393</td>
-          <td class="num green-txt">13</td>
-          <td class="num"><span class="badge">3.3%</span></td>
-        </tr>
-        <tr>
-          <td class="td-nome" data-sort="202508">Agosto/2025</td>
-          <td class="num">383</td>
-          <td class="num green-txt">15</td>
-          <td class="num"><span class="badge">3.9%</span></td>
-        </tr>
-        <tr>
-          <td class="td-nome" data-sort="202507">Julho/2025</td>
-          <td class="num">391</td>
-          <td class="num green-txt">11</td>
-          <td class="num"><span class="badge">2.8%</span></td>
-        </tr>
-        <tr>
-          <td class="td-nome" data-sort="202506">Junho/2025</td>
-          <td class="num">394</td>
-          <td class="num green-txt">6</td>
-          <td class="num"><span class="badge">1.5%</span></td>
-        </tr>
-        <tr>
-          <td class="td-nome" data-sort="202505">Maio/2025</td>
-          <td class="num">415</td>
-          <td class="num green-txt">13</td>
-          <td class="num"><span class="badge">3.1%</span></td>
-        </tr>
-        <tr>
-          <td class="td-nome" data-sort="202504">Abril/2025</td>
-          <td class="num">224</td>
-          <td class="num green-txt">18</td>
-          <td class="num"><span class="badge">8.0%</span></td>
-        </tr>
-        <tr>
-          <td class="td-nome" data-sort="202503">Março/2025</td>
-          <td class="num">230</td>
-          <td class="num green-txt">5</td>
-          <td class="num"><span class="badge">2.2%</span></td>
-        </tr>
-        <tr>
-          <td class="td-nome" data-sort="202502">Fevereiro/2025</td>
-          <td class="num">259</td>
-          <td class="num green-txt">11</td>
-          <td class="num"><span class="badge">4.2%</span></td>
-        </tr>
-        <tr>
-          <td class="td-nome" data-sort="202501">Janeiro/2025</td>
-          <td class="num">281</td>
-          <td class="num green-txt">2</td>
-          <td class="num"><span class="badge">0.7%</span></td>
-        </tr>
-        <tr>
-          <td class="td-nome" data-sort="202412">Dezembro/2024</td>
-          <td class="num">263</td>
-          <td class="num green-txt">3</td>
-          <td class="num"><span class="badge">1.1%</span></td>
-        </tr>
-        <tr>
-          <td class="td-nome" data-sort="202411">Novembro/2024</td>
-          <td class="num">286</td>
-          <td class="num green-txt">5</td>
-          <td class="num"><span class="badge">1.7%</span></td>
-        </tr>
-        <tr>
-          <td class="td-nome" data-sort="202410">Outubro/2024</td>
-          <td class="num">268</td>
-          <td class="num green-txt">1</td>
-          <td class="num"><span class="badge">0.4%</span></td>
-        </tr>
-        <tr>
-          <td class="td-nome" data-sort="202409">Setembro/2024</td>
-          <td class="num">133</td>
-          <td class="num green-txt">3</td>
-          <td class="num"><span class="badge">2.3%</span></td>
-        </tr></tbody>
-          </table>
-        </div>
-      </div>
-    </div></div>
-<div id="leads"      class="page">
-    <div class="back-bar">
-      <button class="back-btn" onclick="showTab('geral','tab-geral')">← Visão Geral</button>
-      <span class="back-sep">/</span><span class="back-label">Leads Pacto</span>
-    </div>
-    <div class="period-bar">
-      <span class="period-badge">Jan → 07/2026</span>
-      CRM · todos os canais · 24 unidades · atualizado em 01/07/2026 13:49
-    </div>
-    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:18px;padding:14px 18px;background:var(--cinza2);border-radius:12px;border:1px solid var(--borda)">
-      <div class="view-btns" style="margin-right:4px">
-        <button class="pill lv-btn active" id="lv-rede"    onclick="setLeadsView('rede',this)">Rede</button>
-        <button class="pill lv-btn"        id="lv-regiao"  onclick="setLeadsView('regiao',this)">Por Região</button>
-        <button class="pill lv-btn"        id="lv-unidade" onclick="setLeadsView('unidade',this)">Por Unidade</button>
-      </div>
-      <select id="leads-reg-sel" style="display:none;font-size:13px;padding:6px 12px;border-radius:8px;border:1px solid var(--borda);background:var(--card);color:var(--texto);cursor:pointer" onchange="leadsReg=this.value;onLeadsFilter()">
-        <option value="Regiao 1">Região 1</option>
-        <option value="Regiao 2">Região 2</option>
-        <option value="Regiao 3">Região 3</option>
-        <option value="Sao Paulo">São Paulo</option>
-      </select>
-      <select id="leads-unit-sel" style="display:none;font-size:13px;padding:6px 12px;border-radius:8px;border:1px solid var(--borda);background:var(--card);color:var(--texto);cursor:pointer" onchange="leadsUnit=this.value;onLeadsFilter()">
-        <option value="Aldeota">Aldeota</option>
-<option value="Barra Funda">Barra Funda</option>
-<option value="CT">CT</option>
-<option value="CT norte">CT norte</option>
-<option value="Cambeba">Cambeba</option>
-<option value="Caucaia">Caucaia</option>
-<option value="Eusebio">Eusebio</option>
-<option value="Fatima">Fatima</option>
-<option value="Guararapes">Guararapes</option>
-<option value="Joquei">Joquei</option>
-<option value="Kennedy">Kennedy</option>
-<option value="Maranguape">Maranguape</option>
-<option value="Maraponga">Maraponga</option>
-<option value="Messejana">Messejana</option>
-<option value="Moema">Moema</option>
-<option value="Montese">Montese</option>
-<option value="Parquelandia">Parquelandia</option>
-<option value="Passare">Passare</option>
-<option value="Personal">Personal</option>
-<option value="Riomar">Riomar</option>
-<option value="Rui Barbosa">Rui Barbosa</option>
-<option value="Shopping Aldeota">Shopping Aldeota</option>
-<option value="Sul">Sul</option>
-<option value="Tatuape">Tatuape</option>
-      </select>
-      <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
-        <select id="lv-year" style="font-size:13px;padding:6px 12px;border-radius:8px;border:1px solid var(--borda);background:var(--card);color:var(--texto);cursor:pointer" onchange="onLeadsFilter()">
-          <option value="2026">2026</option>
-<option value="2025">2025</option>
-<option value="2024">2024</option>
-        </select>
-        <select id="lv-month" style="font-size:13px;padding:6px 12px;border-radius:8px;border:1px solid var(--borda);background:var(--card);color:var(--texto);cursor:pointer" onchange="onLeadsFilter()">
-          <option value="01">Jan</option>
-<option value="02">Fev</option>
-<option value="03">Mar</option>
-<option value="04">Abr</option>
-<option value="05">Mai</option>
-<option value="06">Jun</option>
-<option value="07">Jul</option>
-<option value="08">Ago</option>
-<option value="09">Set</option>
-<option value="10">Out</option>
-<option value="11">Nov</option>
-<option value="12">Dez</option>
-        </select>
-      </div>
-    </div>
-    <div class="panel" style="margin-bottom:20px">
-      <div class="panel-header">
-        <div class="dot blue-dot"></div>
-        <div><h2>Evolução de Leads</h2><p>Série histórica completa com meta</p></div>
-      </div>
-      <div style="padding:20px"><canvas id="chart-leads-regiao" height="110"></canvas></div>
-    </div>
-    <div class="panel" style="margin-bottom:20px">
-      <div class="panel-header" style="padding-bottom:0">
-        <div class="dot blue-dot"></div>
-        <div><h2>Leads por Unidade</h2><p id="lv-period-label">Filtrado por mês</p></div>
-      </div>
-      <div style="padding:16px 20px 8px"><canvas id="chart-leads-units"></canvas></div>
-    </div>
-    <div class="panel">
-      <div class="panel-header">
-        <div class="dot blue-dot"></div>
-        <div><h2>Resultado por Unidade</h2><p id="tbl-leads-subtitle">Mês selecionado</p></div>
-      </div>
-      <div class="table-wrap">
-        <table id="tbl-leads">
-          <thead>
-            <tr>
-              <th style="width:32px"></th>
-              <th class="th-sort" onclick="sortTable('tbl-leads',1)">Unidade</th>
-              <th class="th-sort" onclick="sortTable('tbl-leads',2)">Região</th>
-              <th class="th-sort num" onclick="sortTable('tbl-leads',3)">Leads</th>
-              <th class="th-sort num" onclick="sortTable('tbl-leads',4)">Meta/dia</th>
-              <th class="th-sort num" onclick="sortTable('tbl-leads',5)">Falta</th>
-              <th class="th-sort num" onclick="sortTable('tbl-leads',6)">Conv.</th>
-              <th class="th-sort num" onclick="sortTable('tbl-leads',7)">ICL %</th>
-            </tr>
-          </thead>
-          <tbody id="tbl-leads-body"></tbody>
-          <tfoot id="tbl-leads-foot"></tfoot>
-        </table>
-      </div>
-    </div></div>
-
-<footer>Greenlife Academias · 01/07/2026 16:50</footer>
-
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
-<script>
-Chart.register(ChartDataLabels);
-
-// ── Sort tables ────────────────────────────────────────────────
-function parseSortVal(s) {
-  const t = s.trim().replace(/[^0-9\-,\.]/g,'');
-  if (!t || t==='-') return -Infinity;
-  return parseFloat(t.replace(/\.(?=\d{3})/g,'').replace(',','.')) || 0;
-}
-
-function sortTable(tblId, col) {
-  const tbl = document.getElementById(tblId);
-  if (!tbl) return;
-  const ths   = tbl.querySelectorAll('thead th');
-  const tbody = tbl.querySelector('tbody');
-  const asc   = ths[col].dataset.sortDir !== 'asc';
-  ths.forEach(t => { delete t.dataset.sortDir; t.classList.remove('s-asc','s-desc'); });
-  ths[col].dataset.sortDir = asc ? 'asc' : 'desc';
-  ths[col].classList.add(asc ? 's-asc' : 's-desc');
-  const rows = Array.from(tbody.rows);
-  rows.sort((a,b) => {
-    const cellA = a.cells[col], cellB = b.cells[col];
-    const av = cellA?.dataset.sort || cellA?.textContent || '';
-    const bv = cellB?.dataset.sort || cellB?.textContent || '';
-    const an = parseSortVal(av), bn = parseSortVal(bv);
-    if (isFinite(an) && isFinite(bn)) return asc ? an-bn : bn-an;
-    return asc ? av.localeCompare(bv,'pt-BR') : bv.localeCompare(av,'pt-BR');
-  });
-  rows.forEach(r => tbody.appendChild(r));
-}
-
-// ── Mini chart (Visão Geral) ───────────────────────────────────
-
-const miniLabels = ["Ago/2025", "Set/2025", "Out/2025", "Nov/2025", "Dez/2025", "Jan/2026", "Fev/2026", "Mar/2026", "Abr/2026", "Mai/2026", "Jun/2026", "Jul/2026"];
-const miniRede   = [4780, 4826, 4219, 3752, 3204, 5728, 5243, 7866, 5781, 3308, 2723, 50];
-const miniMeta   = [4800, 4800, 4800, 4800, 4800, 4800, 4800, 4800, 4800, 4800, 4800, 4800];
-
-const miniColors = miniRede.map((v,i) => {
-  const m = miniMeta[i];
-  if (v==null||m==null) return 'rgba(158,158,158,0.45)';
-  return v>=m ? 'rgba(46,125,50,0.75)' : 'rgba(198,40,40,0.75)';
-});
-const miniBorders = miniRede.map((v,i) => {
-  const m = miniMeta[i];
-  if (v==null||m==null) return '#9E9E9E';
-  return v>=m ? '#2E7D32' : '#C62828';
-});
-
-let miniChart = null;
-function initMiniChart() {
-  const ctx = document.getElementById('chart-leads-mini');
-  if (!ctx || miniChart) return;
-
-  const _allVals = [...miniRede.filter(v=>v!=null), ...miniMeta.filter(v=>v!=null)];
-  const _min = _allVals.length ? Math.max(0, Math.floor(Math.min(..._allVals) * 0.90)) : 0;
-
-  miniChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: miniLabels,
-      datasets: [
-        { label: 'Leads', data: miniRede, type: 'bar',
-           backgroundColor: miniColors, borderColor: miniBorders,
-           borderWidth: 1.5, borderRadius: 4, borderSkipped: false, order: 1 },
-        { label: 'Meta', data: miniMeta, type: 'line',
-           borderColor: '#9E9E9E', borderDash: [5,4], backgroundColor: 'transparent',
-           borderWidth: 1.5, pointRadius: 0, tension: 0, fill: false, spanGaps: true, order: 0 },
-      ]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display: false },
-        datalabels: {
-          display: ctx => ctx.datasetIndex === 0 && ctx.dataset.data[ctx.dataIndex] != null,
-          align: 'top',
-          anchor: 'end',
-          font: { size: 10, weight: '700' },
-          color: ctx => miniBorders[ctx.dataIndex],
-          formatter: v => v ? v.toLocaleString('pt-BR') : '',
-          padding: { bottom: 2 },
-        },
-        tooltip: {
-          callbacks: {
-            title: ctx => miniLabels[ctx[0].dataIndex],
-            label: ctx => {
-              const v = ctx.raw;
-              if (ctx.datasetIndex === 1) return 'Meta: ' + (v||0).toLocaleString('pt-BR');
-              const m = miniMeta[ctx.dataIndex];
-              const diff = (m!=null && v!=null) ? v - m : null;
-              const lines = ['Leads: '+(v||0).toLocaleString('pt-BR')];
-              if (m!=null) lines.push('Meta: '+m.toLocaleString('pt-BR'));
-              if (diff!=null) lines.push(diff>=0
-                ? '✓ +'+ diff.toLocaleString('pt-BR')+' acima da meta'
-                : '✗ ' + diff.toLocaleString('pt-BR')+' abaixo da meta');
-              return lines;
-            },
-          }
-        },
-      },
-      scales: {
-        x: {
-          display: true,
-          ticks: { font: { size: 10 }, color: '#9CA3AF', maxRotation: 0 },
-          grid: { display: false },
-        },
-        y: {
-          display: true,
-          beginAtZero: false,
-          suggestedMin: _min,
-          ticks: {
-            maxTicksLimit: 5,
-            font: { size: 10 },
-            color: '#9CA3AF',
-            callback: v => v.toLocaleString('pt-BR'),
-          },
-          grid: { color: '#F0F2F5' },
-        },
-      },
-      layout: { padding: { top: 20 } },
-    },
-  });
-}
-
-// ── Instagram chart ────────────────────────────────────────────
-const igLabels   = ["06/2026", "07/2026"];
-const igDatasets = {
-  "total_seguidores": [{"label": "Academias", "data": [116878, 117014], "borderColor": "#2E7D32", "backgroundColor": "#2E7D3222", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}, {"label": "S\u00e3o Paulo", "data": [29368, 29666], "borderColor": "#1565C0", "backgroundColor": "#1565C022", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}, {"label": "Family", "data": [65727, 65775], "borderColor": "#F57C00", "backgroundColor": "#F57C0022", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}, {"label": "Personal", "data": [6990, 6986], "borderColor": "#6A1B9A", "backgroundColor": "#6A1B9A22", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}, {"label": "CT", "data": [21929, 21932], "borderColor": "#00838F", "backgroundColor": "#00838F22", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}],
-  "crescimento": [{"label": "Academias", "data": [null, 136], "borderColor": "#2E7D32", "backgroundColor": "#2E7D3222", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}, {"label": "S\u00e3o Paulo", "data": [null, 298], "borderColor": "#1565C0", "backgroundColor": "#1565C022", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}, {"label": "Family", "data": [null, 48], "borderColor": "#F57C00", "backgroundColor": "#F57C0022", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}, {"label": "Personal", "data": [null, -4], "borderColor": "#6A1B9A", "backgroundColor": "#6A1B9A22", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}, {"label": "CT", "data": [null, 3], "borderColor": "#00838F", "backgroundColor": "#00838F22", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}],
-  "total_int": [{"label": "Academias", "data": [5909, 74], "borderColor": "#2E7D32", "backgroundColor": "#2E7D3222", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}, {"label": "S\u00e3o Paulo", "data": [10450, 132], "borderColor": "#1565C0", "backgroundColor": "#1565C022", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}, {"label": "Family", "data": [2815, 26], "borderColor": "#F57C00", "backgroundColor": "#F57C0022", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}, {"label": "Personal", "data": [781, 20], "borderColor": "#6A1B9A", "backgroundColor": "#6A1B9A22", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}, {"label": "CT", "data": [3117, 45], "borderColor": "#00838F", "backgroundColor": "#00838F22", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}],
-  "curtidas": [{"label": "Academias", "data": [2171, 0], "borderColor": "#2E7D32", "backgroundColor": "#2E7D3222", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}, {"label": "S\u00e3o Paulo", "data": [1647, 0], "borderColor": "#1565C0", "backgroundColor": "#1565C022", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}, {"label": "Family", "data": [697, 0], "borderColor": "#F57C00", "backgroundColor": "#F57C0022", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}, {"label": "Personal", "data": [147, 0], "borderColor": "#6A1B9A", "backgroundColor": "#6A1B9A22", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}, {"label": "CT", "data": [1120, 0], "borderColor": "#00838F", "backgroundColor": "#00838F22", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}],
-  "comentarios": [{"label": "Academias", "data": [225, 0], "borderColor": "#2E7D32", "backgroundColor": "#2E7D3222", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}, {"label": "S\u00e3o Paulo", "data": [401, 0], "borderColor": "#1565C0", "backgroundColor": "#1565C022", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}, {"label": "Family", "data": [74, 0], "borderColor": "#F57C00", "backgroundColor": "#F57C0022", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}, {"label": "Personal", "data": [19, 0], "borderColor": "#6A1B9A", "backgroundColor": "#6A1B9A22", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}, {"label": "CT", "data": [108, 0], "borderColor": "#00838F", "backgroundColor": "#00838F22", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}],
-  "compartilhamentos": [{"label": "Academias", "data": [339, 0], "borderColor": "#2E7D32", "backgroundColor": "#2E7D3222", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}, {"label": "S\u00e3o Paulo", "data": [554, 0], "borderColor": "#1565C0", "backgroundColor": "#1565C022", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}, {"label": "Family", "data": [85, 0], "borderColor": "#F57C00", "backgroundColor": "#F57C0022", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}, {"label": "Personal", "data": [14, 0], "borderColor": "#6A1B9A", "backgroundColor": "#6A1B9A22", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}, {"label": "CT", "data": [232, 0], "borderColor": "#00838F", "backgroundColor": "#00838F22", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}],
-  "salvamentos": [{"label": "Academias", "data": [126, 3], "borderColor": "#2E7D32", "backgroundColor": "#2E7D3222", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}, {"label": "S\u00e3o Paulo", "data": [215, 4], "borderColor": "#1565C0", "backgroundColor": "#1565C022", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}, {"label": "Family", "data": [66, 4], "borderColor": "#F57C00", "backgroundColor": "#F57C0022", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}, {"label": "Personal", "data": [15, 0], "borderColor": "#6A1B9A", "backgroundColor": "#6A1B9A22", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}, {"label": "CT", "data": [72, 0], "borderColor": "#00838F", "backgroundColor": "#00838F22", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}],
-  "posts": [{"label": "Academias", "data": [16, 0], "borderColor": "#2E7D32", "backgroundColor": "#2E7D3222", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}, {"label": "S\u00e3o Paulo", "data": [17, 0], "borderColor": "#1565C0", "backgroundColor": "#1565C022", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}, {"label": "Family", "data": [12, 0], "borderColor": "#F57C00", "backgroundColor": "#F57C0022", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}, {"label": "Personal", "data": [7, 0], "borderColor": "#6A1B9A", "backgroundColor": "#6A1B9A22", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}, {"label": "CT", "data": [14, 0], "borderColor": "#00838F", "backgroundColor": "#00838F22", "borderWidth": 2, "pointRadius": 5, "pointHoverRadius": 7, "tension": 0.3, "fill": false, "spanGaps": true}]
-};
-const igNames    = {"total_seguidores": "Total Seguidores", "crescimento": "Crescimento L\u00edquido", "total_int": "Total Intera\u00e7\u00f5es (API)", "curtidas": "Curtidas", "comentarios": "Coment\u00e1rios", "compartilhamentos": "Compartilhamentos", "salvamentos": "Salvamentos", "posts": "Posts no Per\u00edodo"};
-let igChart     = null;
-let igViewMode  = 'perfil';
-
-function setIgView(view, btn) {
-  igViewMode = view;
-  document.querySelectorAll('#ig-btn-perfil,#ig-btn-rede').forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  updateIgChart();
-}
-
-function getIgDatasets(ind) {
-  const base = igDatasets[ind] || [];
-  if (igViewMode === 'perfil') return base;
-  const agg = igLabels.map((_,i) => {
-    const vals = base.map(d => d.data[i]).filter(v => v != null);
-    return vals.length ? vals.reduce((a,b) => a+b, 0) : null;
-  });
-  return [{ label: 'Total Rede', data: agg,
-    borderColor: '#1B3A2F', backgroundColor: '#1B3A2F20',
-    borderWidth: 3, pointRadius: 5, pointHoverRadius: 7, tension: 0.3, fill: false, spanGaps: true }];
-}
-
-function updateIgChart() {
-  const ind = document.getElementById('ig-select').value;
-  const datasets = getIgDatasets(ind);
-  if (igChart) {
-    igChart.data.labels = igLabels;
-    igChart.data.datasets = datasets;
-    igChart.options.plugins.title.text = igNames[ind];
-    igChart.update(); return;
-  }
-  igChart = new Chart(document.getElementById('ig-chart'), {
-    type: 'line',
-    data: { labels: igLabels, datasets: datasets },
-    options: {
-      responsive: true,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        title: { display: true, text: igNames[ind], font: { size: 14, weight: '600' }, padding: { bottom: 16 } },
-        legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20, font: { size: 13 } } },
-        datalabels: {
-          display: ctx => ctx.dataset.data[ctx.dataIndex] != null,
-          align: 'top', anchor: 'end', offset: 4,
-          font: { size: 10, weight: '700' },
-          color: '#fff',
-          backgroundColor: ctx => ctx.dataset.borderColor,
-          borderRadius: 4,
-          padding: { top: 3, bottom: 3, left: 5, right: 5 },
-          formatter: v => v == null ? '' : v.toLocaleString('pt-BR'),
-          clip: false,
-        },
-      },
-      scales: {
-        x: { grid: { color: '#F0F2F5' }, ticks: { font: { size: 12 } } },
-        y: { grid: { color: '#F0F2F5' },
-              ticks: { font: { size: 12 }, callback: v => v.toLocaleString('pt-BR') },
-              beginAtZero: false },
-      },
-    },
-  });
-}
-
-// ── Leads chart ────────────────────────────────────────────────
-
-const leadsAllLabels  = ["01/2024", "02/2024", "03/2024", "04/2024", "05/2024", "06/2024", "07/2024", "08/2024", "09/2024", "10/2024", "11/2024", "12/2024", "01/2025", "02/2025", "03/2025", "04/2025", "05/2025", "06/2025", "07/2025", "08/2025", "09/2025", "10/2025", "11/2025", "12/2025", "01/2026", "02/2026", "03/2026", "04/2026", "05/2026", "06/2026", "07/2026"];
-const leadsAllData    = {
-  "rede": [3062, 2188, 1962, 2055, 1823, 2123, 1485, 2333, 2338, 2196, 2496, 3652, 5151, 3763, 3343, 5517, 6745, 5283, 5105, 4780, 4826, 4219, 3752, 3204, 5728, 5243, 7866, 5781, 3308, 2723, 50],
-  "regioes": {
-    "Regiao 1": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21],
-    "Regiao 2": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14],
-    "Regiao 3": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13],
-    "Sao Paulo": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2],
-  },
-  "unidades": {
-    "Aldeota": [238, 158, 135, 107, 50, 227, 115, 223, 224, 204, 173, 263, 371, 371, 227, 232, 261, 129, 186, 194, 195, 175, 178, 152, 250, 157, 216, 182, 212, 195, 2],
-    "Barra Funda": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 743, 767, 1062, 543, 63, 54, 0],
-    "CT": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 202, 137, 143, 1999, 2343, 1174, 1029, 948, 734, 639, 510, 527, 611, 646, 500, 308, 253, 217, 3],
-    "CT norte": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1217, 1908, 456, 0, 33, 0],
-    "Cambeba": [258, 131, 94, 57, 83, 86, 68, 115, 102, 100, 62, 129, 232, 159, 138, 121, 99, 93, 124, 142, 138, 125, 109, 78, 180, 103, 83, 83, 86, 69, 2],
-    "Caucaia": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 551, 501, 318, 301, 251, 325, 923, 503, 501, 412, 321, 321, 252, 375, 231, 264, 233, 193, 169, 0],
-    "Eusebio": [114, 81, 90, 52, 70, 52, 61, 114, 112, 124, 89, 163, 211, 151, 131, 121, 171, 123, 128, 128, 154, 139, 140, 132, 189, 89, 110, 122, 118, 127, 2],
-    "Fatima": [203, 147, 122, 129, 116, 110, 138, 117, 122, 102, 73, 141, 256, 154, 152, 101, 143, 121, 119, 129, 119, 115, 94, 92, 165, 86, 108, 115, 82, 82, 4],
-    "Guararapes": [116, 81, 79, 54, 27, 78, 52, 110, 108, 102, 78, 121, 223, 122, 147, 128, 103, 106, 80, 107, 86, 85, 81, 77, 106, 87, 93, 87, 118, 90, 4],
-    "Joquei": [354, 154, 158, 356, 553, 399, 132, 348, 353, 288, 235, 390, 565, 425, 395, 327, 366, 281, 321, 301, 419, 354, 311, 167, 346, 215, 236, 222, 215, 202, 1],
-    "Kennedy": [111, 217, 173, 157, 178, 181, 169, 183, 212, 177, 141, 181, 362, 233, 290, 339, 337, 304, 309, 331, 328, 325, 297, 227, 363, 252, 289, 272, 255, 194, 1],
-    "Maranguape": [315, 138, 97, 73, 61, 69, 87, 63, 84, 78, 52, 68, 120, 68, 80, 68, 77, 59, 68, 62, 65, 81, 64, 58, 85, 39, 37, 32, 64, 32, 0],
-    "Maraponga": [199, 136, 148, 108, 135, 142, 63, 178, 198, 126, 143, 180, 301, 224, 185, 173, 235, 176, 229, 248, 214, 194, 185, 147, 231, 126, 156, 169, 132, 119, 3],
-    "Messejana": [319, 385, 282, 191, 115, 143, 86, 225, 182, 191, 136, 175, 379, 200, 224, 173, 185, 181, 137, 199, 198, 197, 153, 107, 217, 123, 125, 111, 100, 78, 1],
-    "Moema": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 413, 1460, 273, 102, 1],
-    "Montese": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 770, 440, 333, 310, 213, 458, 633, 429, 385, 326, 345, 308, 268, 202, 320, 178, 213, 172, 163, 141, 3],
-    "Parquelandia": [101, 58, 70, 53, 49, 48, 41, 76, 49, 83, 54, 117, 171, 85, 108, 90, 87, 71, 107, 85, 89, 75, 58, 62, 119, 84, 71, 73, 84, 50, 1],
-    "Passare": [255, 164, 179, 132, 118, 113, 57, 136, 139, 146, 133, 174, 271, 193, 155, 135, 186, 152, 157, 149, 167, 146, 159, 130, 221, 113, 119, 117, 124, 97, 1],
-    "Personal": [48, 79, 43, 34, 33, 25, 15, 14, 25, 21, 29, 56, 63, 42, 36, 26, 60, 44, 88, 63, 278, 62, 156, 112, 117, 90, 93, 101, 90, 37, 0],
-    "Riomar": [0, 0, 0, 304, 8, 201, 234, 212, 197, 220, 167, 285, 380, 250, 225, 210, 211, 149, 199, 154, 183, 169, 153, 165, 254, 145, 171, 186, 170, 175, 9],
-    "Rui Barbosa": [156, 94, 113, 94, 87, 85, 60, 92, 95, 106, 68, 116, 210, 144, 131, 101, 133, 88, 90, 148, 102, 101, 79, 106, 173, 98, 114, 85, 78, 79, 2],
-    "Shopping Aldeota": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 176, 57, 55, 448, 393, 472, 221, 298, 270, 192, 197, 278, 177, 175, 190, 152, 178, 1],
-    "Sul": [275, 165, 179, 154, 140, 164, 107, 127, 136, 128, 93, 102, 0, 1, 5, 409, 342, 287, 374, 344, 302, 338, 244, 211, 384, 208, 249, 236, 177, 162, 8],
-    "Tatuape": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 1061, 226, 106, 41, 1],
-  }
-};
-const leadsAllMetas   = {
-  "rede": [4800, 4800, 4800, 4800, 4800, 4800, 4800, 4800, 4800, 4800, 4800, 4800, 4800, 4800, 4800, 4800, 4800, 4800, 4800, 4800, 4800, 4800, 4800, 4800, 4800, 4800, 4800, 4800, 4800, 4800, 4800],
-  "regioes": {
-    "Regiao 1": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-    "Regiao 2": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-    "Regiao 3": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-    "Sao Paulo": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-  },
-  "unidades": {
-    "Aldeota": [200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200],
-    "Barra Funda": [200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200],
-    "CT": [200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200],
-    "CT norte": [200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200],
-    "Cambeba": [200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200],
-    "Caucaia": [200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200],
-    "Eusebio": [200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200],
-    "Fatima": [200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200],
-    "Guararapes": [200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200],
-    "Joquei": [200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200],
-    "Kennedy": [200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200],
-    "Maranguape": [200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200],
-    "Maraponga": [200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200],
-    "Messejana": [200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200],
-    "Moema": [200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200],
-    "Montese": [200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200],
-    "Parquelandia": [200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200],
-    "Passare": [200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200],
-    "Personal": [200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200],
-    "Riomar": [200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200],
-    "Rui Barbosa": [200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200],
-    "Shopping Aldeota": [200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200],
-    "Sul": [200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200],
-    "Tatuape": [200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200],
-  }
-};
-const leadsUnidades   = ["Aldeota", "Barra Funda", "CT", "CT norte", "Cambeba", "Caucaia", "Eusebio", "Fatima", "Guararapes", "Joquei", "Kennedy", "Maranguape", "Maraponga", "Messejana", "Moema", "Montese", "Parquelandia", "Passare", "Personal", "Riomar", "Rui Barbosa", "Shopping Aldeota", "Sul", "Tatuape"];
-const leadsConversao  = {
-  "Aldeota": {"2026-07": 0},
-  "Barra Funda": {"2026-07": 0},
-  "CT": {"2026-07": 0},
-  "CT norte": {"2026-07": 0},
-  "Cambeba": {"2026-07": 0},
-  "Caucaia": {"2026-07": 0},
-  "Eusebio": {"2026-07": 0},
-  "Fatima": {"2026-07": 0},
-  "Guararapes": {"2026-07": 0},
-  "Joquei": {"2026-07": 0},
-  "Kennedy": {"2026-07": 0},
-  "Maranguape": {"2026-07": 0},
-  "Maraponga": {"2026-07": 0},
-  "Messejana": {"2026-07": 0},
-  "Moema": {"2026-07": 0},
-  "Montese": {"2026-07": 0},
-  "Parquelandia": {"2026-07": 0},
-  "Passare": {"2026-07": 0},
-  "Personal": {"2026-07": 0},
-  "Riomar": {"2026-07": 0},
-  "Rui Barbosa": {"2026-07": 0},
-  "Shopping Aldeota": {"2026-07": 0},
-  "Sul": {"2026-07": 0},
-  "Tatuape": {"2026-07": 0},
-};
-const leadsCurrentKey = "2026-07";
-const leadsMetaRatio  = 0.043478;
-const leadsOrdem      = ["Aldeota", "Barra Funda", "CT", "CT norte", "Cambeba", "Caucaia", "Eusebio", "Fatima", "Guararapes", "Joquei", "Kennedy", "Maranguape", "Maraponga", "Messejana", "Moema", "Montese", "Parquelandia", "Passare", "Personal", "Riomar", "Rui Barbosa", "Shopping Aldeota", "Sul", "Tatuape"];
-
-let leadsChart = null;
-let leadsView  = 'rede';
-let leadsUnit  = (typeof leadsUnidades !== 'undefined' && leadsUnidades.length) ? leadsUnidades[0] : '';
-let leadsReg   = 'Regiao 1';
-
-function setLeadsView(view, btn) {
-  leadsView = view;
-  document.querySelectorAll('.lv-btn').forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  const selU = document.getElementById('leads-unit-sel');
-  const selR = document.getElementById('leads-reg-sel');
-  if (selU) selU.style.display = view === 'unidade' ? 'inline-block' : 'none';
-  if (selR) selR.style.display = view === 'regiao'  ? 'inline-block' : 'none';
-  onLeadsFilter();
-}
-
-function renderLeadsChart() {
-  if (typeof leadsAllLabels === 'undefined') return;
-  const COLORS = {'Regiao 1':'#1565C0','Regiao 2':'#2E7D32','Regiao 3':'#F57C00','Sao Paulo':'#6A1B9A'};
-  const RNAMES = {'Regiao 1':'Região 1','Regiao 2':'Região 2','Regiao 3':'Região 3','Sao Paulo':'São Paulo'};
-  const datasets = [];
-
-  if (leadsView === 'rede') {
-    datasets.push({ label: 'Total Rede', data: leadsAllData.rede,
-      borderColor:'#1565C0', backgroundColor:'#1565C022',
-      borderWidth:2, pointRadius:3, tension:0.3, fill:false, spanGaps:true });
-    const mRede = leadsAllMetas.rede;
-    if (mRede && mRede.some(v => v!=null))
-      datasets.push({ label:'Meta', data:mRede,
-        borderColor:'#9E9E9E', borderDash:[6,4], backgroundColor:'transparent',
-        borderWidth:2, pointRadius:0, tension:0.3, fill:false, spanGaps:true,
-        datalabels:{display:false} });
-
-  } else if (leadsView === 'regiao') {
-    const r = leadsReg;
-    const cor = COLORS[r] || '#1565C0';
-    datasets.push({ label: RNAMES[r]||r, data: leadsAllData.regioes[r]||[],
-      borderColor:cor, backgroundColor:cor+'22',
-      borderWidth:2, pointRadius:3, tension:0.3, fill:false, spanGaps:true });
-    const mR = leadsAllMetas.regioes[r];
-    if (mR && mR.some(v=>v!=null))
-      datasets.push({ label:'Meta', data:mR,
-        borderColor:'#9E9E9E', borderDash:[6,4], backgroundColor:'transparent',
-        borderWidth:1.5, pointRadius:0, tension:0.3, fill:false, spanGaps:true,
-        datalabels:{display:false} });
-
-  } else if (leadsView === 'unidade') {
-    const u = leadsUnit;
-    datasets.push({ label:u, data:leadsAllData.unidades[u]||[],
-      borderColor:'#1565C0', backgroundColor:'#1565C022',
-      borderWidth:2, pointRadius:4, tension:0.3, fill:false, spanGaps:true });
-    const mU = leadsAllMetas.unidades[u];
-    if (mU && mU.some(v=>v!=null))
-      datasets.push({ label:'Meta', data:mU,
-        borderColor:'#9E9E9E', borderDash:[6,4], backgroundColor:'transparent',
-        borderWidth:2, pointRadius:0, tension:0.3, fill:false, spanGaps:true,
-        datalabels:{display:false} });
-  }
-
-  if (leadsChart) {
-    leadsChart.data.labels   = leadsAllLabels;
-    leadsChart.data.datasets = datasets;
-    leadsChart.update();
-  } else {
-    leadsChart = new Chart(document.getElementById('chart-leads-regiao'), {
-      type: 'line',
-      data: { labels: leadsAllLabels, datasets: datasets },
-      options: {
-        responsive: true,
-        interaction: { mode: 'index', intersect: false },
-        plugins: {
-          legend: {
-            position: 'top',
-            labels: { usePointStyle:true, padding:16, font:{ size:12 } },
-            onClick: () => {},
-          },
-          datalabels: {
-            align:'top', anchor:'end',
-            font:{ size:10, weight:'600' },
-            formatter: v => v ? v.toLocaleString('pt-BR') : '',
-            color: ctx => ctx.dataset.borderColor,
-          },
-        },
-        scales: {
-          x: { grid:{ color:'#F0F2F5' }, ticks:{ font:{ size:11 } } },
-          y: { beginAtZero:false, grid:{ color:'#F0F2F5' },
-                ticks:{ callback: v => v.toLocaleString('pt-BR') } },
-        },
-        layout: { padding: { top: 20 } },
-      },
-    });
-  }
-}
-
-function initLeadsChart() {
-  const ctx = document.getElementById('chart-leads-regiao');
-  if (!ctx) return;
-  renderLeadsChart();
-}
-
-// ── Filtro Mês / Gráfico Unidades / Tabela ─────────────────────
-let unitsChart = null;
-
-function onLeadsFilter() {
-  const y = document.getElementById('lv-year')?.value;
-  const m = document.getElementById('lv-month')?.value;
-  if (!y || !m) return;
-  const key = y + '-' + m;
-  renderLeadsChart();
-  renderUnitsChart(key);
-  renderLeadsTable(key);
-}
-
-function _metaDia(unidade, key) {
-  const metas = leadsAllMetas?.unidades?.[unidade];
-  if (!metas) return null;
-  const idx = leadsAllLabels.findIndex(l => {
-    const p = l.split('/'); return (p[1]+'-'+p[0]) === key;
-  });
-  if (idx < 0) return null;
-  const m = metas[idx];
-  if (m == null) return null;
-  const ratio = (key === leadsCurrentKey) ? leadsMetaRatio : 1.0;
-  return Math.round(m * ratio);
-}
-
-function _filtrarUnidades() {
-  if (!leadsOrdem) return [];
-  if (leadsView === 'regiao') {
-    // leadsReg é 'Regiao 1' etc.; leadsRegiaoMap retorna 'Região 1' etc.
-    const regNorm = leadsReg.replace('Regiao','Região').replace('Sao Paulo','São Paulo');
-    return leadsOrdem.filter(u => leadsRegiaoMap[u] === regNorm);
-  }
-  if (leadsView === 'unidade') {
-    return leadsOrdem.filter(u => u === leadsUnit);
-  }
-  return leadsOrdem;
-}
-
-function renderUnitsChart(key) {
-  if (typeof leadsAllData === 'undefined') return;
-
-  const labelsU = [], dataLeads = [], dataMeta = [], colorsBar = [], colorsBorder = [];
-
-  if (typeof leadsAllData !== 'undefined') {
-    const idx = leadsAllLabels.findIndex(l => { const p=l.split('/'); return (p[1]+'-'+p[0])===key; });
-    const unidadesFiltradas = _filtrarUnidades();
-    unidadesFiltradas.forEach(u => {
-      const leads = idx >= 0 ? (leadsAllData.unidades?.[u]?.[idx] ?? 0) : 0;
-      const meta  = _metaDia(u, key);
-      labelsU.push(u);
-      dataLeads.push(leads);
-      dataMeta.push(meta);
-      const ok = meta != null ? leads >= meta : null;
-      colorsBar.push(ok === true ? 'rgba(46,125,50,0.70)' : ok === false ? 'rgba(198,40,40,0.70)' : 'rgba(158,158,158,0.45)');
-      colorsBorder.push(ok === true ? '#2E7D32' : ok === false ? '#C62828' : '#9E9E9E');
-    });
-  }
-
-  const C_ABOVE  = 'rgba(16,185,129,0.80)';  // emerald
-  const C_BELOW  = 'rgba(239,68,68,0.78)';   // rose
-  const C_NONE   = 'rgba(148,163,184,0.40)';
-  const CB_ABOVE = '#059669';
-  const CB_BELOW = '#DC2626';
-  const CB_NONE  = '#94A3B8';
-
-  const barsColor   = dataMeta.map((m,i) => m==null ? C_NONE  : dataLeads[i]>=m ? C_ABOVE  : C_BELOW);
-  const barsBorder  = dataMeta.map((m,i) => m==null ? CB_NONE : dataLeads[i]>=m ? CB_ABOVE : CB_BELOW);
-
-  const datasets = [
-    { label: 'Leads', data: dataLeads,
-       backgroundColor: barsColor, borderColor: barsBorder,
-       borderWidth: 0, borderRadius: 5, borderSkipped: false,
-       categoryPercentage: 0.65, barPercentage: 0.85, order: 1 },
-    { label: 'Meta/dia', data: dataMeta, type: 'line',
-       borderColor: '#94A3B8', borderDash: [5,4], backgroundColor: 'transparent',
-       borderWidth: 1.5, pointRadius: 0, tension: 0,
-       fill: false, spanGaps: true, order: 0, datalabels: {display:false} },
-  ];
-
-  if (unitsChart) {
-    unitsChart.data.labels   = labelsU;
-    unitsChart.data.datasets = datasets;
-    unitsChart.update('none');
-  } else {
-    const ctx = document.getElementById('chart-leads-units');
-    if (!ctx) return;
-    unitsChart = new Chart(ctx, {
-      type: 'bar',
-      data: { labels: labelsU, datasets },
-      options: {
-        responsive: true,
-        animation: { duration: 400, easing: 'easeOutQuart' },
-        plugins: {
-          legend: { display: false },
-          datalabels: {
-            display: ctx => ctx.datasetIndex === 0,
-            anchor: 'end', align: 'top', offset: 2,
-            font: { size: 10, weight: '600', family: 'inherit' },
-            color: ctx => barsBorder[ctx.dataIndex],
-            formatter: v => v != null ? v.toLocaleString('pt-BR') : '',
-            clip: false,
-          },
-          tooltip: {
-            backgroundColor: 'rgba(15,23,42,0.88)',
-            titleColor: '#F1F5F9',
-            bodyColor: '#CBD5E1',
-            padding: 10,
-            cornerRadius: 8,
-            boxPadding: 4,
-            callbacks: {
-              title: ctx => ctx[0].label,
-              label: ctx => {
-                const i = ctx.dataIndex;
-                if (ctx.datasetIndex === 1) {
-                  const m = dataMeta[i];
-                  return ' Meta/dia: ' + (m != null ? m.toLocaleString('pt-BR') : '—');
-                }
-                const diff = dataMeta[i] != null ? dataLeads[i] - dataMeta[i] : null;
-                const diffStr = diff != null
-                  ? (diff >= 0 ? '  +' + diff.toLocaleString('pt-BR') : '  ' + diff.toLocaleString('pt-BR'))
-                  : '';
-                return [
-                  ' Leads: ' + dataLeads[i].toLocaleString('pt-BR') + diffStr,
-                  dataMeta[i] != null ? ' Meta/dia: ' + dataMeta[i].toLocaleString('pt-BR') : '',
-                ].filter(Boolean);
-              },
-            }
-          },
-        },
-        scales: {
-          x: {
-            offset: true,
-            grid: { display: false },
-            border: { display: false },
-            ticks: { font: { size: 10, family: 'inherit' }, maxRotation: 40, minRotation: 40,
-                      color: '#94A3B8', padding: 4 },
-          },
-          y: {
-            beginAtZero: false,
-            grid: { color: 'rgba(241,245,249,0.9)', drawBorder: false },
-            border: { display: false, dash: [4,4] },
-            ticks: {
-              font: { size: 10 }, color: '#94A3B8', maxTicksLimit: 4, padding: 8,
-              callback: v => v >= 1000 ? (v/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})+'k' : v.toLocaleString('pt-BR'),
-            },
-            suggestedMin: (() => {
-              const all = [...dataLeads, ...dataMeta].filter(v => v != null && v > 0);
-              if (!all.length) return 0;
-              const mn = Math.min(...all), mx = Math.max(...all);
-              return Math.max(0, Math.floor(mn - (mx - mn) * 0.5));
-            })(),
-          },
-        },
-        layout: { padding: { top: 22, right: 8, bottom: 0, left: 4 } },
-      },
-    });
-  }
-
-  // Atualiza label do período
-  const lbl = document.getElementById('lv-period-label');
-  if (lbl) lbl.textContent = 'Mês: '+key.slice(5)+'/'+key.slice(0,4);
-}
-
-function renderLeadsTable(key) {
-  if (typeof leadsAllData === 'undefined') return;
-  const idx = leadsAllLabels.findIndex(l => { const p=l.split('/'); return (p[1]+'-'+p[0])===key; });
-  const RNAMES = {'Regiao 1':'Região 1','Regiao 2':'Região 2','Regiao 3':'Região 3','Sao Paulo':'São Paulo'};
-
-  const rows = _filtrarUnidades().map(u => {
-    const leads = idx >= 0 ? (leadsAllData.unidades?.[u]?.[idx] ?? 0) : 0;
-    const meta  = _metaDia(u, key);
-    const falta = meta != null ? leads - meta : null;
-    const conv  = (typeof leadsConversao !== 'undefined') ? (leadsConversao[u]?.[key] ?? null) : null;
-    const icl   = (conv != null && leads > 0) ? (conv / leads * 100) : null;
-    return { u, leads, meta, falta, conv, icl };
-  }).sort((a,b) => b.leads - a.leads);
-
-  // Obtém regiões do JSON de unidades
-  const getRegiao = u => {
-    for (const r of ['Regiao 1','Regiao 2','Regiao 3','Sao Paulo']) {
-      const d = leadsAllData.regioes?.[r];
-      // não temos mapeamento direto — vamos usar leadsOrdem (injected)
+    async function sha256(str) {
+      const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,"0")).join("");
     }
-    return '';
-  };
 
-  let html = '';
-  let totLeads = 0, totMeta = 0, totFalta = 0, totConv = 0;
-  let hasMeta = false, hasConv = false;
+    async function entrar() {
+      const hash = await sha256(document.getElementById("pw").value);
+      if (hash === HASH) {
+        sessionStorage.setItem("gl_auth", "1");
+        window.location.href = "dashboard.html";
+      } else {
+        document.getElementById("err").style.display = "block";
+        document.getElementById("pw").focus();
+      }
+    }
 
-  rows.forEach((r, i) => {
-    totLeads += r.leads;
-    if (r.meta != null) { totMeta += r.meta; hasMeta = true; }
-    if (r.falta != null) totFalta += r.falta;
-    if (r.conv  != null) { totConv  += r.conv;  hasConv  = true; }
-
-    const faltaStr  = r.falta  != null ? (r.falta >= 0 ? '<span style="color:#2E7D32">+'+r.falta.toLocaleString('pt-BR')+'</span>' : '<span style="color:#C62828">'+r.falta.toLocaleString('pt-BR')+'</span>') : '—';
-    const metaStr   = r.meta   != null ? r.meta.toLocaleString('pt-BR') : '—';
-    const iclStr    = r.icl    != null ? r.icl.toFixed(1)+'%' : '—';
-    const iclColor  = r.icl    != null ? (r.icl >= 30 ? '#2E7D32' : r.icl >= 15 ? '#F57C00' : '#C62828') : 'var(--subtexto)';
-
-    html += `<tr>
-      <td class="rank">#${i+1}</td>
-      <td class="td-nome">${r.u}</td>
-      <td style="color:var(--subtexto);font-size:12px">${leadsRegiaoMap[r.u]||''}</td>
-      <td class="num blue-txt">${r.leads.toLocaleString('pt-BR')}</td>
-      <td class="num">${metaStr}</td>
-      <td class="num">${faltaStr}</td>
-      <td class="num" style="color:var(--subtexto)">${r.conv != null ? r.conv.toLocaleString('pt-BR') : '—'}</td>
-      <td class="num" style="color:${iclColor};font-weight:700">${iclStr}</td>
-    </tr>`;
-  });
-
-  const totFaltaStr = hasMeta ? (totFalta >= 0 ? '<span style="color:#2E7D32">+'+totFalta.toLocaleString('pt-BR')+'</span>' : '<span style="color:#C62828">'+totFalta.toLocaleString('pt-BR')+'</span>') : '—';
-  const totIcl = (hasConv && totLeads > 0) ? (totConv/totLeads*100).toFixed(1)+'%' : '—';
-  const footHtml = `<tr style="background:var(--cinza2);font-weight:700">
-    <td colspan="3" class="td-nome">TOTAL REDE</td>
-    <td class="num blue-txt">${totLeads.toLocaleString('pt-BR')}</td>
-    <td class="num">${hasMeta ? totMeta.toLocaleString('pt-BR') : '—'}</td>
-    <td class="num">${totFaltaStr}</td>
-    <td class="num" style="color:var(--subtexto)">${hasConv ? totConv.toLocaleString('pt-BR') : '—'}</td>
-    <td class="num">${totIcl}</td>
-  </tr>`;
-
-  const tbody = document.getElementById('tbl-leads-body');
-  const tfoot = document.getElementById('tbl-leads-foot');
-  if (tbody) tbody.innerHTML = html;
-  if (tfoot) tfoot.innerHTML = footHtml;
-
-  const sub = document.getElementById('tbl-leads-subtitle');
-  if (sub) sub.textContent = key.slice(5)+'/'+key.slice(0,4)+' · ordenado por volume';
-}
-
-// Mapa unidade → região (injetado do Python)
-const leadsRegiaoMap = {"Aldeota": "", "Barra Funda": "", "CT": "", "CT norte": "", "Cambeba": "", "Caucaia": "", "Eusebio": "", "Fatima": "", "Guararapes": "", "Joquei": "", "Kennedy": "", "Maranguape": "", "Maraponga": "", "Messejana": "", "Moema": "", "Montese": "", "Parquelandia": "", "Passare": "", "Personal": "", "Riomar": "", "Rui Barbosa": "", "Shopping Aldeota": "", "Sul": "", "Tatuape": ""};
-
-function initLeadsFilter() {
-  const y = document.getElementById('lv-year');
-  const m = document.getElementById('lv-month');
-  if (!y || !m) return;
-  // Seta mês/ano atual como padrão
-  const [curY, curM] = leadsCurrentKey.split('-');
-  if (curY) y.value = curY;
-  if (curM) m.value = curM;
-  onLeadsFilter();
-}
-
-// ── Navigation ─────────────────────────────────────────────────
-function showTab(id, tabId) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  const tab = typeof tabId === 'string' ? document.getElementById(tabId) : tabId;
-  if (tab) tab.classList.add('active');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  if (id === 'instagram' && !igChart) updateIgChart();
-  if (id === 'leads') { if (!leadsChart) initLeadsChart(); initLeadsFilter(); }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  initMiniChart();
-  updateIgChart();
-});
-</script>
+    function togglePw() {
+      const inp = document.getElementById("pw");
+      inp.type = inp.type === "password" ? "text" : "password";
+    }
+  </script>
 </body>
 </html>

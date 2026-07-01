@@ -48,7 +48,7 @@ jobs:
         run: |
           cd greenlife_scraper
           python gerar_dashboard.py
-          cp dashboard.html ../docs/index.html
+          cp dashboard.html ../docs/dashboard.html
 
       - name: Commit e push
         run: |
@@ -59,6 +59,6 @@ jobs:
                   instagram-metrics/base_seguidores.xlsx \
                   instagram-metrics/base_interacoes_total.xlsx \
                   instagram-metrics/base_interacoes_detalhadas.xlsx \
-                  docs/index.html
+                  docs/dashboard.html
           git diff --cached --quiet && echo "Nenhuma alteracao" || \
             git commit -m "Dashboard: $(date +'%Y-%m-%d %H:%M UTC')" && git push
