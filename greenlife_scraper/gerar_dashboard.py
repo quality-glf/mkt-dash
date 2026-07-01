@@ -1829,6 +1829,10 @@ document.addEventListener('DOMContentLoaded', () => {{
                 display:flex; align-items:center; justify-content:center;
                 color:white; font-weight:800; font-size:16px; flex-shrink:0; }}
   .topbar-title {{ font-size:16px; font-weight:700; color:#fff; }}
+  .update-stamp {{ display:flex; align-items:center; gap:14px; margin-left:16px; }}
+  .update-item {{ display:flex; align-items:center; gap:5px; font-size:11px; color:rgba(255,255,255,.5); white-space:nowrap; }}
+  .update-dot {{ width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,.3); flex-shrink:0; }}
+  .update-dot.ok {{ background:#4CAF50; }}
   .tabs {{ margin-left:auto; display:flex; gap:4px; }}
   .tab {{ padding:6px 18px; border-radius:8px; font-size:14px; font-weight:500;
           cursor:pointer; color:rgba(255,255,255,.65); background:none; border:none;
@@ -1963,6 +1967,11 @@ document.addEventListener('DOMContentLoaded', () => {{
 <div class="topbar">
   <div class="logo-mark" onclick="showTab('geral',document.getElementById('tab-geral'))" style="cursor:pointer">GL</div>
   <div class="topbar-title" onclick="showTab('geral',document.getElementById('tab-geral'))" style="cursor:pointer">Greenlife Dashboard</div>
+  <div class="update-stamp">
+    <div class="update-item"><div class="update-dot ok"></div>Leads {gerado_em}</div>
+    <div class="update-item"><div class="update-dot ok"></div>Instagram {_data_fim.strftime('%d/%m/%Y')}</div>
+    <div class="update-item"><div class="update-dot ok"></div>Clube {resumo['data']}</div>
+  </div>
   <div class="tabs">
     <button class="tab active" id="tab-geral"      onclick="showTab('geral',this)">Visão Geral</button>
     <button class="tab"        id="tab-instagram"  onclick="showTab('instagram',this)">Instagram</button>
