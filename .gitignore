@@ -1,0 +1,45 @@
+# Credenciais — NUNCA commitar
+instagram-metrics/config.json
+dashboard-executivo/config/credenciais.json
+**/.env
+**/*.env
+
+# Dados de clientes / PII — NUNCA commitar
+dashboard-executivo/processed_data/
+dashboard-executivo/raw_data/
+dashboard-executivo/reports_output/
+dashboard-executivo/logs/
+nps-greenlife/*.json
+nps-greenlife/*.txt
+nps-greenlife/*.ps1
+Leads_Pacto_2026.xlsx
+Leads_Pacto_2026_CRM.xlsx
+historico_leads.xlsx
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# Debug / desenvolvimento local
+greenlife_scraper/*.png
+greenlife_scraper/log.txt
+greenlife_scraper/abrir_dashboard.bat
+greenlife_scraper/instalar.bat
+greenlife_scraper/rodar.bat
+greenlife_scraper/agendar_tarefa.ps1
+greenlife_scraper/agendar_coleta.bat
+
+# Scripts exploratórios na raiz
+*.py
+!greenlife_scraper/*.py
+!instagram-metrics/*.py
+
+# Claude
+.claude/
+
+# Excel temporários (~$)
+~$*.xlsx

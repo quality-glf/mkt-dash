@@ -1,0 +1,2903 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NPS Dashboard — Greenlife Academias</title>
+<link rel="icon" type="image/png" href="../Imagens_ID_Visual/Cópia de Logo Gl.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  /* Greenlife brand */
+  --gl-beige:#dfd4c0;
+  --gl-beige-light:#f0ebe0;
+  --gl-beige-dark:#c8bca8;
+  --gl-olive:#686d57;
+  --gl-olive-dark:#535845;
+  --gl-olive-light:#8a9175;
+  --gl-brown:#6d5545;
+  --gl-brown-dark:#563f32;
+  --gl-brown-light:#8a6e5e;
+  /* Functional */
+  --green-dark:#686d57;
+  --green-mid:#15803D;
+  --green-light:#D1FAE5;
+  --green-pale:#F0FDF4;
+  --red:#DC2626;
+  --red-light:#FEE2E2;
+  --amber:#F59E0B;
+  --amber-light:#FEF3C7;
+  --blue:#1D4ED8;
+  --blue-light:#DBEAFE;
+  --gray-50:#faf8f4;
+  --gray-100:#f0ebe0;
+  --gray-200:#e4ddd0;
+  --gray-300:#cec5b5;
+  --gray-400:#a49882;
+  --gray-500:#7a6f5e;
+  --gray-600:#5c5346;
+  --gray-700:#3d3629;
+  --gray-800:#2a2318;
+  --gray-900:#1a1510;
+  --shadow-sm:0 1px 4px rgba(104,93,69,.1);
+  --shadow-md:0 4px 16px rgba(104,93,69,.15);
+  --radius-sm:6px;
+  --radius-md:10px;
+  --radius-lg:14px;
+}
+body{font-family:'Inter',sans-serif;background:#f5f0e8;color:var(--gray-800);min-height:100vh}
+
+/* PASSWORD */
+#password-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(145deg,var(--gl-olive-dark) 0%,var(--gl-brown-dark) 100%)}
+.pw-card{background:#fff;border-radius:var(--radius-lg);padding:2.5rem;width:380px;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center}
+.pw-logo{width:100px;height:100px;border-radius:50%;background:#fff;border:2px solid var(--gl-beige-dark);display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;overflow:hidden}
+.pw-logo img{width:80px;height:80px;object-fit:contain}
+.pw-card h1{font-size:1.3rem;font-weight:700;color:var(--gray-800);margin-bottom:.3rem;font-family:'Playfair Display',Georgia,serif}
+.pw-card p{font-size:.85rem;color:var(--gray-500);margin-bottom:1.5rem}
+.pw-card input{width:100%;padding:.75rem 1rem;border:1.5px solid var(--gray-200);border-radius:var(--radius-md);font-size:.95rem;font-family:inherit;outline:none;transition:border-color .2s}
+.pw-card input:focus{border-color:var(--gl-olive)}
+.pw-card button{width:100%;padding:.8rem;margin-top:.75rem;background:var(--gl-olive);color:#fff;border:none;border-radius:var(--radius-md);font-size:.95rem;font-weight:600;cursor:pointer;transition:background .2s;font-family:inherit}
+.pw-card button:hover{background:var(--gl-olive-dark)}
+.pw-error{color:var(--red);font-size:.82rem;margin-top:.5rem;display:none}
+
+/* LOADING */
+#loading-screen{display:none;align-items:center;justify-content:center;min-height:100vh;background:var(--gray-50);flex-direction:column;gap:1rem}
+.spinner{width:44px;height:44px;border:4px solid var(--gray-200);border-top-color:var(--green-dark);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loading-screen p{color:var(--gray-500);font-size:.9rem}
+
+/* APP */
+#app{display:none}
+
+/* HEADER */
+.header{background:var(--gl-olive);color:#fff;padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.18)}
+.header-brand{display:flex;align-items:center;gap:.75rem}
+.header-logo{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:1.05rem;font-weight:800;font-family:'Playfair Display',Georgia,serif;letter-spacing:-.5px}
+.header-title{font-size:1.05rem;font-weight:600;font-family:'Playfair Display',Georgia,serif;letter-spacing:.01em}
+.header-subtitle{font-size:.72rem;opacity:.65;margin-top:.1rem;letter-spacing:.04em;text-transform:uppercase}
+.header-right{display:flex;align-items:center;gap:1rem}
+.header-ts{font-size:.72rem;opacity:.55;text-align:right;line-height:1.5}
+.logout-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;padding:.35rem .8rem;border-radius:var(--radius-sm);font-size:.78rem;cursor:pointer;font-family:inherit;transition:background .2s}
+.logout-btn:hover{background:rgba(255,255,255,.2)}
+
+/* TABS */
+.tabs{background:var(--gl-olive-dark);border-top:1px solid rgba(255,255,255,.1);display:flex;padding:0 2rem}
+.tab{padding:.7rem 1.25rem;color:rgba(255,255,255,.6);font-size:.85rem;font-weight:500;border:none;background:none;cursor:pointer;font-family:inherit;border-bottom:2.5px solid transparent;transition:all .2s;letter-spacing:.01em}
+.tab:hover{color:rgba(255,255,255,.9)}
+.tab.active{color:#fff;border-bottom-color:var(--gl-beige)}
+.tab.tab-alert{color:rgba(255,200,180,.9)}
+.tab.tab-alert.active{color:#fff;border-bottom-color:#FCA5A5}
+
+/* FILTER BAR */
+.filter-bar{background:var(--gl-beige-light);border-bottom:1px solid var(--gl-beige-dark);padding:.65rem 2rem;display:flex;align-items:center;gap:.75rem;flex-wrap:wrap}
+.filter-bar label{font-size:.75rem;font-weight:600;color:var(--gray-500);white-space:nowrap;text-transform:uppercase;letter-spacing:.04em}
+.filter-bar select{padding:.32rem .65rem;border:1.5px solid var(--gl-beige-dark);border-radius:var(--radius-sm);font-size:.82rem;font-family:inherit;color:var(--gray-700);background:#fff;cursor:pointer;outline:none;transition:border-color .2s;min-width:130px}
+.filter-bar select:focus{border-color:var(--gl-olive)}
+.filter-sep{flex:1}
+/* FILTRO ATIVO STICKY */
+#filtro-ativo-bar{display:none;position:sticky;top:64px;z-index:90;background:var(--gl-olive);color:#fff;padding:.32rem 2rem;font-size:.75rem;font-weight:500;gap:.5rem;align-items:center;flex-wrap:wrap;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+#filtro-ativo-bar .fa-label{opacity:.7;text-transform:uppercase;font-size:.68rem;letter-spacing:.05em;margin-right:.2rem}
+#filtro-ativo-bar .fa-chip{background:rgba(255,255,255,.18);border-radius:100px;padding:.15rem .55rem;font-size:.73rem;font-weight:600}
+.btn-refresh{padding:.35rem .9rem;background:var(--gl-olive);color:#fff;border:none;border-radius:var(--radius-sm);font-size:.82rem;font-weight:500;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:.35rem;transition:background .2s}
+.btn-refresh:hover{background:var(--gl-olive-dark)}
+
+/* CONTENT */
+.content{padding:1.5rem 2rem;max-width:1400px;margin:0 auto}
+
+/* SECTION TITLE */
+.section-title{font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gray-500);margin-bottom:.75rem;padding-bottom:.4rem;border-bottom:1.5px solid var(--gray-200)}
+
+/* KPI CARDS */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:1rem;margin-bottom:1.5rem}
+.kpi-card{background:#fff;border-radius:var(--radius-md);padding:1.1rem 1.25rem;box-shadow:var(--shadow-sm);border:1px solid var(--gray-200);display:flex;flex-direction:column;gap:.3rem}
+.kpi-card.clickable{cursor:pointer;transition:box-shadow .15s,transform .1s}
+.kpi-card.clickable:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.kpi-card.green{background:var(--gl-olive);border-color:var(--gl-olive-dark)}
+.kpi-card.green .kpi-label{color:rgba(255,255,255,.75)}
+.kpi-card.green .kpi-value{color:#fff}
+.kpi-card.green .kpi-sub{color:rgba(255,255,255,.6)}
+.kpi-card.green .kpi-delta-inline{background:rgba(255,255,255,.15);color:rgba(255,255,255,.9)}
+.kpi-card.red{background:var(--red-light);border-color:#FCA5A5}
+.kpi-card.red .kpi-label{color:#B91C1C}
+.kpi-card.red .kpi-value{color:var(--red)}
+.kpi-card.amber{background:var(--amber-light);border-color:#FDE68A}
+.kpi-card.amber .kpi-label{color:#92400E}
+.kpi-card.amber .kpi-value{color:#B45309}
+.kpi-card.blue{background:var(--blue-light);border-color:#BFDBFE}
+.kpi-card.blue .kpi-label{color:#1E40AF}
+.kpi-card.blue .kpi-value{color:var(--blue)}
+.kpi-label{font-size:.72rem;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:.04em}
+.kpi-value{font-size:2rem;font-weight:800;color:var(--gray-800);line-height:1}
+.kpi-sub{font-size:.75rem;color:var(--gray-400)}
+.kpi-badge{display:inline-block;padding:.15rem .5rem;border-radius:100px;font-size:.7rem;font-weight:600;margin-top:.1rem}
+.badge-green{background:var(--green-light);color:var(--green-mid)}
+.badge-red{background:var(--red-light);color:var(--red)}
+.badge-amber{background:var(--amber-light);color:#B45309}
+.badge-gray{background:var(--gray-100);color:var(--gray-500)}
+.badge-blue{background:var(--blue-light);color:var(--blue)}
+
+/* DELTA KPI inline (inside NPS card) */
+.kpi-delta-inline{font-size:.74rem;font-weight:700;padding:.15rem .45rem;border-radius:4px;display:inline-block;margin-top:.1rem}
+.delta-inline-up{background:#D1FAE5;color:#065F46}
+.delta-inline-down{background:var(--red-light);color:#991B1B}
+.delta-inline-eq{background:var(--gray-100);color:var(--gray-500)}
+
+/* GRID LAYOUTS */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1.5rem}
+.grid-2-1{display:grid;grid-template-columns:2fr 1fr;gap:1rem;margin-bottom:1.5rem}
+.grid-1-2{display:grid;grid-template-columns:1fr 2fr;gap:1rem;margin-bottom:1.5rem}
+
+/* CARD */
+.card{background:#fff;border-radius:var(--radius-md);padding:1.25rem;box-shadow:var(--shadow-sm);border:1px solid var(--gray-200)}
+.card-title{font-size:.82rem;font-weight:700;color:var(--gray-700);margin-bottom:1rem;display:flex;align-items:center;gap:.4rem}
+.card-title span.dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0}
+
+/* RANK TABLE */
+.rank-table{width:100%;border-collapse:collapse;font-size:.82rem}
+.rank-table th{text-align:left;padding:.5rem .6rem;font-size:.7rem;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:.04em;border-bottom:1.5px solid var(--gray-200);background:var(--gray-50)}
+.rank-table td{padding:.5rem .6rem;border-bottom:1px solid var(--gray-100);color:var(--gray-700);vertical-align:middle}
+.rank-table tr:last-child td{border-bottom:none}
+.rank-table tr:hover td{background:var(--gray-50)}
+.rank-num{width:22px;height:22px;border-radius:50%;background:var(--gray-200);display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--gray-600)}
+.rank-num.gold{background:#FEF08A;color:#854D0E}
+.rank-num.silver{background:#E2E8F0;color:#475569}
+.rank-num.bronze{background:#FED7AA;color:#9A3412}
+.nps-pill{display:inline-block;padding:.2rem .55rem;border-radius:100px;font-size:.75rem;font-weight:700}
+.nps-excellent{background:var(--green-light);color:var(--green-mid)}
+.nps-good{background:#D1FAE5;color:#065F46}
+.nps-ok{background:var(--amber-light);color:#92400E}
+.nps-bad{background:var(--red-light);color:var(--red)}
+.nps-neg{background:#FEE2E2;color:#991B1B}
+.tag-theme{display:inline-block;padding:.15rem .45rem;border-radius:4px;font-size:.7rem;font-weight:500;background:var(--gray-100);color:var(--gray-600)}
+.tag-crit{display:inline-block;padding:.15rem .45rem;border-radius:4px;font-size:.7rem;font-weight:600}
+.crit-alta{background:#FEE2E2;color:var(--red)}
+.crit-media{background:var(--amber-light);color:#B45309}
+.crit-baixa{background:var(--green-light);color:var(--green-mid)}
+.crit-critica{background:#7F1D1D;color:#fff}
+
+/* PROBLEM TYPE TAGS */
+.prob-tag{padding:.12rem .45rem;border-radius:4px;font-size:.68rem;font-weight:700;white-space:nowrap}
+.prob-recorrente{background:#FEE2E2;color:#991B1B;border:1px solid #FCA5A5}
+.prob-critico{background:#7F1D1D;color:#fff}
+.prob-repetido{background:var(--amber-light);color:#78350F;border:1px solid #FDE68A}
+.prob-novo{background:var(--blue-light);color:#1E40AF;border:1px solid #BFDBFE}
+
+/* ACTION TABLE */
+.action-table{width:100%;border-collapse:collapse;font-size:.8rem}
+.action-table th{text-align:left;padding:.4rem .6rem;font-size:.68rem;font-weight:600;color:var(--gray-500);text-transform:uppercase;border-bottom:1.5px solid var(--gray-200);background:var(--gray-50)}
+.action-table td{padding:.45rem .6rem;border-bottom:1px solid var(--gray-100);color:var(--gray-700);vertical-align:top}
+.action-table tr.action-sum-row td{padding:0;border-bottom:1px solid var(--gray-100)}
+.action-table tr:last-child td{border-bottom:none}
+.action-table tr:hover td{background:var(--gray-50)}
+.action-table tr.action-sum-row:hover td{background:transparent}
+.prio-tag{padding:.15rem .5rem;border-radius:100px;font-size:.7rem;font-weight:600;white-space:nowrap}
+.prio-alta{background:#FEE2E2;color:var(--red)}
+.prio-media{background:var(--amber-light);color:#B45309}
+.prio-baixa{background:var(--green-light);color:var(--green-mid)}
+.btn-ver-resumos{padding:.22rem .55rem;border-radius:4px;font-size:.71rem;font-weight:600;background:var(--blue-light);color:var(--blue);border:1px solid #BFDBFE;cursor:pointer;font-family:inherit;transition:background .15s;white-space:nowrap}
+.btn-ver-resumos:hover{background:#BFDBFE}
+.action-sum-inner{padding:.6rem .8rem .8rem;background:#F8FAFC}
+.sum-item{padding:.3rem 0;border-bottom:1px dashed var(--gray-200);font-size:.77rem;color:var(--gray-600);font-style:italic;line-height:1.4}
+.sum-item:last-child{border-bottom:none}
+.sum-item-unit{font-style:normal;font-weight:600;color:var(--gray-700);font-size:.72rem;display:inline-block;margin-right:.35rem}
+
+/* CHART */
+.chart-wrap{position:relative;width:100%;height:240px}
+.chart-wrap-sm{position:relative;width:100%;height:180px}
+.chart-wrap-lg{position:relative;width:100%;height:300px}
+.chart-wrap-xl{position:relative;width:100%;height:360px}
+
+/* CHART FILTER BUTTONS */
+.chart-filter-btns{display:flex;gap:.4rem;margin-bottom:.75rem;flex-wrap:wrap}
+.cfbtn{padding:.3rem .7rem;border-radius:100px;font-size:.75rem;font-weight:600;border:1.5px solid var(--gray-200);background:#fff;color:var(--gray-500);cursor:pointer;font-family:inherit;transition:all .15s}
+.cfbtn:hover{border-color:var(--gray-400);color:var(--gray-700)}
+.cfbtn.active-all{background:var(--gray-800);border-color:var(--gray-800);color:#fff}
+.cfbtn.active-pro{background:#15803D;border-color:#15803D;color:#fff}
+.cfbtn.active-neu{background:#D97706;border-color:#D97706;color:#fff}
+.cfbtn.active-det{background:var(--red);border-color:var(--red);color:#fff}
+.cfbtn.active-tema{background:var(--gray-700);border-color:var(--gray-700);color:#fff}
+
+/* LEGEND */
+.chart-legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-bottom:.6rem;font-size:.75rem;color:var(--gray-600)}
+.legend-dot{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:3px}
+
+/* TRENDING */
+.trending-table{width:100%;border-collapse:collapse;font-size:.81rem}
+.trending-table th{text-align:left;padding:.4rem .6rem;font-size:.68rem;font-weight:600;color:var(--gray-500);border-bottom:1.5px solid var(--gray-200);background:var(--gray-50)}
+.trending-table td{padding:.4rem .6rem;border-bottom:1px solid var(--gray-100);color:var(--gray-700)}
+.trending-table tr:last-child td{border-bottom:none}
+.tend-up{color:var(--red);font-weight:700}
+.tend-down{color:var(--green-mid);font-weight:700}
+.tend-eq{color:var(--gray-400);font-weight:700}
+
+/* COMMENTS */
+.comment-list{display:flex;flex-direction:column;gap:.6rem;max-height:420px;overflow-y:auto;padding-right:.25rem}
+.comment-list::-webkit-scrollbar{width:4px}
+.comment-list::-webkit-scrollbar-thumb{background:var(--gray-200);border-radius:4px}
+.comment-card{border:1px solid var(--gray-200);border-radius:var(--radius-sm);overflow:hidden;transition:box-shadow .15s}
+.comment-card:hover{box-shadow:var(--shadow-sm)}
+.comment-header{padding:.55rem .8rem;cursor:pointer;display:flex;align-items:center;gap:.6rem;background:var(--gray-50);border-bottom:1px solid transparent}
+.comment-card.open .comment-header{border-bottom-color:var(--gray-200)}
+.comment-meta{display:flex;align-items:center;gap:.5rem;flex:1;flex-wrap:wrap}
+.comment-body{padding:.7rem .8rem;font-size:.81rem;line-height:1.55;color:var(--gray-700);display:none}
+.comment-card.open .comment-body{display:block}
+.comment-resumo{margin-top:.5rem;padding:.4rem .6rem;border-radius:4px;font-size:.78rem;background:var(--gray-100);color:var(--gray-600);font-style:italic}
+.comment-action{margin-top:.5rem;padding:.4rem .6rem;border-radius:4px;font-size:.78rem;background:var(--amber-light);color:#78350F;font-weight:500}
+.nota-circle{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0}
+.nc-promotor{background:var(--green-light);color:var(--green-mid)}
+.nc-neutro{background:var(--amber-light);color:#B45309}
+.nc-detrator{background:var(--red-light);color:var(--red)}
+.chevron{margin-left:auto;font-size:.7rem;color:var(--gray-400);transition:transform .2s;flex-shrink:0}
+.comment-card.open .chevron{transform:rotate(180deg)}
+
+/* PROBLEM LIST */
+.problem-list{display:flex;flex-direction:column;gap:.5rem;max-height:420px;overflow-y:auto}
+.problem-list::-webkit-scrollbar{width:4px}
+.problem-list::-webkit-scrollbar-thumb{background:var(--gray-200);border-radius:4px}
+.problem-row{border:1px solid var(--gray-200);border-radius:var(--radius-sm);padding:.6rem .8rem;background:#fff}
+.problem-row.row-critica{border-left:3px solid #7F1D1D}
+.problem-row.row-alta{border-left:3px solid var(--red)}
+.problem-row.row-media{border-left:3px solid var(--amber)}
+.problem-row.row-baixa{border-left:3px solid var(--green-mid)}
+
+/* CRITICOS TABLE */
+.criticos-table{width:100%;border-collapse:collapse;font-size:.82rem}
+.criticos-table th{text-align:left;padding:.5rem .7rem;font-size:.7rem;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:.04em;border-bottom:1.5px solid var(--gray-200);background:var(--gray-50)}
+.criticos-table td{padding:.55rem .7rem;border-bottom:1px solid var(--gray-100);color:var(--gray-700);vertical-align:top;line-height:1.4}
+.criticos-table tr:last-child td{border-bottom:none}
+.criticos-table tr:hover td{background:var(--gray-50)}
+
+/* EMPTY */
+.empty{text-align:center;padding:2rem;color:var(--gray-400);font-size:.85rem}
+
+/* UNIT SELECTOR */
+.unit-selector-wrap{display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem;flex-wrap:wrap}
+.unit-select{padding:.45rem .8rem;border:1.5px solid var(--gray-200);border-radius:var(--radius-md);font-size:.88rem;font-family:inherit;color:var(--gray-700);background:#fff;cursor:pointer;outline:none;min-width:200px;transition:border-color .2s}
+.unit-select:focus{border-color:var(--green-dark)}
+.unit-filter-label{font-size:.8rem;color:var(--gray-500);font-weight:500}
+
+/* SENTIMENT CARDS */
+.sentiment-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-bottom:1.25rem}
+.sent-card{border-radius:var(--radius-md);padding:1rem;text-align:center}
+.sent-card.pos{background:#DCFCE7;border:1px solid #BBF7D0}
+.sent-card.neg{background:var(--red-light);border:1px solid #FCA5A5}
+.sent-card.neu{background:var(--amber-light);border:1px solid #FDE68A}
+.sent-card.nps{background:var(--green-dark);border:1px solid var(--green-dark)}
+.sent-label{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.sent-card.pos .sent-label{color:#166534}
+.sent-card.neg .sent-label{color:#991B1B}
+.sent-card.neu .sent-label{color:#78350F}
+.sent-card.nps .sent-label{color:rgba(255,255,255,.75)}
+.sent-value{font-size:1.8rem;font-weight:800;margin:.2rem 0}
+.sent-card.pos .sent-value{color:#15803D}
+.sent-card.neg .sent-value{color:var(--red)}
+.sent-card.neu .sent-value{color:#D97706}
+.sent-card.nps .sent-value{color:#fff}
+.sent-sub{font-size:.72rem}
+.sent-card.pos .sent-sub{color:#4ADE80}
+.sent-card.neg .sent-sub{color:#FCA5A5}
+.sent-card.neu .sent-sub{color:#FCD34D}
+.sent-card.nps .sent-sub{color:rgba(255,255,255,.5)}
+
+/* NPS BAR */
+.nps-bar-wrap{margin-top:.75rem}
+.nps-bar-labels{display:flex;justify-content:space-between;font-size:.72rem;color:var(--gray-500);margin-bottom:.2rem}
+.nps-bar{height:8px;border-radius:4px;background:var(--gray-200);overflow:hidden;display:flex}
+.nps-bar-det{background:var(--red);height:100%}
+.nps-bar-neu{background:var(--amber);height:100%}
+.nps-bar-pro{background:var(--green-mid);height:100%}
+
+/* ALERT BANNER */
+.alert-banner{display:flex;align-items:center;gap:.75rem;padding:.8rem 1rem;border-radius:var(--radius-md);margin-bottom:1rem;font-size:.83rem}
+.alert-banner.warn{background:var(--amber-light);border:1px solid #FDE68A;color:#78350F}
+.alert-banner.danger{background:var(--red-light);border:1px solid #FCA5A5;color:#991B1B}
+.alert-banner.success{background:var(--green-light);border:1px solid #BBF7D0;color:#166534}
+.alert-banner.info{background:var(--blue-light);border:1px solid #BFDBFE;color:#1E40AF}
+.alert-banner.clickable-banner{cursor:pointer;transition:box-shadow .15s}
+.alert-banner.clickable-banner:hover{box-shadow:var(--shadow-sm)}
+.alert-icon{font-size:1.1rem;flex-shrink:0}
+
+/* DOT CHART */
+.dot-chart-wrap{overflow-x:auto}
+.dot-chart{border-collapse:separate;border-spacing:6px;font-size:.74rem}
+.dot-chart th{text-align:center;color:var(--gray-500);font-weight:600;white-space:nowrap;padding:0 2px}
+.dot-chart td{text-align:center;padding:0 2px}
+.dot{width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;cursor:default;color:#fff}
+.dot-row-label{text-align:right;color:var(--gray-600);white-space:nowrap;font-weight:500;padding-right:6px}
+
+/* META BAR */
+.meta-bar-wrap{margin-top:.5rem}
+.meta-bar-track{background:var(--gray-200);height:10px;border-radius:5px;overflow:hidden}
+.meta-bar-fill{height:100%;border-radius:5px;transition:width .5s ease}
+
+/* SCROLL TABLE */
+.table-scroll{overflow-x:auto}
+.table-scroll .rank-table{min-width:600px}
+
+/* UNIT CHIP */
+.unit-chip{display:inline-flex;align-items:center;gap:.4rem;padding:.3rem .7rem;background:var(--gray-100);border-radius:100px;font-size:.78rem;color:var(--gray-600)}
+
+/* TOP5 CARD DISTINCTION */
+.top5-card-atual{border-top:3px solid var(--red)}
+.top5-card-recente{border-top:3px solid #D97706}
+
+/* KEYWORDS PANEL */
+.keywords-panel{display:flex;flex-direction:column;gap:.45rem;max-height:360px;overflow-y:auto;padding-right:.15rem}
+.keywords-panel::-webkit-scrollbar{width:3px}
+.keywords-panel::-webkit-scrollbar-thumb{background:var(--gray-200);border-radius:4px}
+.kw-item{padding:.4rem .55rem;border-radius:var(--radius-sm);background:var(--gray-50);border:1px solid var(--gray-200)}
+.kw-tema{font-size:.72rem;font-weight:700;color:var(--gray-700);margin-bottom:.2rem}
+.kw-tags{display:flex;flex-wrap:wrap;gap:.2rem}
+.kw-tag{display:inline-block;padding:.08rem .32rem;background:var(--blue-light);color:#1E40AF;border-radius:3px;font-size:.67rem;font-weight:500}
+
+/* CRITICOS EXPLANATION */
+.criticos-explain{background:#FFF8F8;border:1px solid #FCA5A5;border-radius:var(--radius-md);padding:1rem 1.25rem;margin-bottom:1.25rem;font-size:.83rem;color:#7F1D1D;line-height:1.55}
+.criticos-explain strong{display:block;margin-bottom:.3rem;font-size:.85rem}
+
+/* PROB URGENTES EXPLANATION */
+.prob-explain{font-size:.78rem;color:var(--gray-500);margin-bottom:.9rem;line-height:1.5;padding:.5rem .6rem;background:var(--gray-50);border-radius:var(--radius-sm);border-left:3px solid var(--amber)}
+
+/* CARD override for brand */
+.card{background:#fff;border-radius:var(--radius-md);padding:1.25rem;box-shadow:var(--shadow-sm);border:1px solid var(--gl-beige-dark)}
+.card-title{font-size:.82rem;font-weight:700;color:var(--gray-700);margin-bottom:1rem;display:flex;align-items:center;gap:.4rem}
+
+/* GL SECTION HEADERS */
+.gl-section{margin-bottom:1.75rem}
+.gl-section-header{display:flex;align-items:baseline;gap:.6rem;margin-bottom:1rem}
+.gl-section-title{font-family:'Playfair Display',Georgia,serif;font-size:1.05rem;font-weight:700;color:var(--gl-brown);letter-spacing:-.01em}
+.gl-section-sub{font-size:.75rem;color:var(--gray-500);font-weight:400}
+
+/* GL HERO NPS CARD */
+.gl-hero-card{background:linear-gradient(135deg,var(--gl-olive) 0%,var(--gl-olive-dark) 100%);border-radius:var(--radius-lg);padding:1.5rem 1.75rem;color:#fff;box-shadow:var(--shadow-md);position:relative;overflow:hidden;border:none}
+.gl-hero-card::before{content:'';position:absolute;top:-20px;right:-20px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.06)}
+.gl-hero-card::after{content:'';position:absolute;bottom:-30px;right:20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.04)}
+.gl-hero-label{font-size:.7rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;opacity:.7;margin-bottom:.35rem}
+.gl-hero-value{font-family:'Playfair Display',Georgia,serif;font-size:3rem;font-weight:700;line-height:1;margin-bottom:.25rem}
+.gl-hero-meta{font-size:.78rem;opacity:.7;margin-bottom:.5rem}
+.gl-hero-delta{display:inline-block;background:rgba(255,255,255,.15);border-radius:4px;padding:.2rem .5rem;font-size:.75rem;font-weight:600}
+
+/* GL METRICS STRIP */
+.gl-metrics-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:.75rem;margin-bottom:1.5rem}
+.gl-metric{background:#fff;border:1px solid var(--gl-beige-dark);border-radius:var(--radius-md);padding:.9rem 1rem;display:flex;flex-direction:column;gap:.2rem;box-shadow:var(--shadow-sm)}
+.gl-metric.danger{background:#FFF5F5;border-color:#FCA5A5;cursor:pointer;transition:box-shadow .15s}
+.gl-metric.danger:hover{box-shadow:var(--shadow-md)}
+.gl-metric.success{background:#f0fdf4;border-color:#bbf7d0}
+.gl-metric-label{font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--gray-500)}
+.gl-metric.danger .gl-metric-label{color:#B91C1C}
+.gl-metric.success .gl-metric-label{color:#166534}
+.gl-metric-value{font-size:1.55rem;font-weight:800;color:var(--gray-800);line-height:1}
+.gl-metric.danger .gl-metric-value{color:var(--red)}
+.gl-metric.success .gl-metric-value{color:#15803D}
+.gl-metric-sub{font-size:.7rem;color:var(--gray-400)}
+
+/* GL PRIORITY RANKING */
+.gl-ranking{display:flex;flex-direction:column;gap:.5rem}
+.gl-rank-row{display:flex;align-items:center;gap:.75rem;background:#fff;border:1px solid var(--gl-beige-dark);border-radius:var(--radius-md);padding:.75rem 1rem;cursor:pointer;transition:all .15s;position:relative}
+.gl-rank-row:hover{box-shadow:var(--shadow-md);border-color:var(--gl-beige-dark);transform:translateX(2px)}
+.gl-rank-row.rank-critico{border-left:4px solid #7F1D1D}
+.gl-rank-row.rank-alta{border-left:4px solid var(--red)}
+.gl-rank-row.rank-media{border-left:4px solid var(--amber)}
+.gl-rank-row.rank-ok{border-left:4px solid #15803D}
+.gl-rank-pos{width:28px;height:28px;border-radius:50%;background:var(--gl-beige);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;color:var(--gl-brown);flex-shrink:0}
+.gl-rank-pos.pos-1{background:var(--gl-brown);color:#fff}
+.gl-rank-pos.pos-2{background:var(--gl-brown-light);color:#fff}
+.gl-rank-name{flex:1;font-size:.88rem;font-weight:600;color:var(--gray-800)}
+.gl-rank-region{font-size:.7rem;color:var(--gray-400);font-weight:400;display:block}
+.gl-rank-badges{display:flex;gap:.35rem;align-items:center;flex-shrink:0}
+.gl-rank-nps{padding:.22rem .6rem;border-radius:100px;font-size:.75rem;font-weight:700}
+.gl-rank-arrow{font-size:.8rem;color:var(--gray-400);flex-shrink:0}
+.gl-rank-crit-dot{width:8px;height:8px;border-radius:50%;background:var(--red);flex-shrink:0}
+
+/* GL SIDE PANEL */
+.gl-panel-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;display:none;opacity:0;transition:opacity .2s}
+.gl-panel-overlay.open{display:block;opacity:1}
+.gl-panel{position:fixed;top:0;right:0;bottom:0;width:480px;background:#fff;z-index:201;transform:translateX(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);box-shadow:-4px 0 24px rgba(0,0,0,.15);overflow-y:auto;display:flex;flex-direction:column}
+.gl-panel.open{transform:translateX(0)}
+.gl-panel-header{background:var(--gl-olive);color:#fff;padding:1.25rem 1.5rem;display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-shrink:0}
+.gl-panel-title{font-family:'Playfair Display',Georgia,serif;font-size:1.1rem;font-weight:700}
+.gl-panel-subtitle{font-size:.75rem;opacity:.7;margin-top:.2rem}
+.gl-panel-close{background:rgba(255,255,255,.15);border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.gl-panel-close:hover{background:rgba(255,255,255,.28)}
+.gl-panel-body{padding:1.25rem 1.5rem;flex:1}
+.gl-panel-section{margin-bottom:1.25rem}
+.gl-panel-section-title{font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gl-olive);margin-bottom:.6rem;padding-bottom:.3rem;border-bottom:1.5px solid var(--gl-beige)}
+.gl-panel-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin-bottom:1rem}
+.gl-panel-kpi{background:var(--gl-beige-light);border-radius:var(--radius-sm);padding:.65rem .75rem;text-align:center}
+.gl-panel-kpi-label{font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--gray-500);margin-bottom:.15rem}
+.gl-panel-kpi-value{font-size:1.35rem;font-weight:800;color:var(--gray-800)}
+.gl-panel-comment{background:var(--gray-50);border-left:3px solid var(--gl-beige-dark);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:.6rem .75rem;font-size:.8rem;color:var(--gray-700);line-height:1.5;margin-bottom:.5rem}
+.gl-panel-comment-meta{font-size:.68rem;color:var(--gray-400);margin-bottom:.3rem;font-weight:600}
+
+/* GL PROBLEMAS */
+.gl-prob-list{display:flex;flex-direction:column;gap:.5rem}
+.gl-prob-item{background:#fff;border:1px solid var(--gl-beige-dark);border-radius:var(--radius-md);padding:.8rem 1rem;display:flex;align-items:flex-start;gap:.75rem}
+.gl-prob-icon{width:36px;height:36px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0}
+.gl-prob-icon.nivel-critico{background:#FEE2E2}
+.gl-prob-icon.nivel-alta{background:#FEF3C7}
+.gl-prob-icon.nivel-media{background:#EFF6FF}
+.gl-prob-body{flex:1;min-width:0}
+.gl-prob-tema{font-size:.78rem;font-weight:700;color:var(--gray-800);margin-bottom:.2rem}
+.gl-prob-desc{font-size:.75rem;color:var(--gray-500);line-height:1.4}
+.gl-prob-meta{display:flex;gap:.4rem;align-items:center;margin-top:.35rem;flex-wrap:wrap}
+.gl-prob-count{font-size:.7rem;font-weight:600;color:var(--gray-500)}
+
+/* GL EMPTY */
+.gl-empty{text-align:center;padding:2rem;color:var(--gray-400);font-size:.85rem;background:#fff;border:1px solid var(--gl-beige-dark);border-radius:var(--radius-md)}
+
+/* GL ALERTAS */
+.gl-alertas-list{display:flex;flex-direction:column;gap:.6rem}
+.gl-alerta{border-radius:var(--radius-md);padding:.85rem 1.1rem;cursor:default;transition:box-shadow .15s}
+.gl-alerta[onclick]{cursor:pointer}
+.gl-alerta[onclick]:hover{box-shadow:var(--shadow-md)}
+.gl-alerta-top{display:flex;align-items:center;gap:.55rem;margin-bottom:.3rem}
+.gl-alerta-badge{font-size:.65rem;font-weight:700;padding:.15rem .45rem;border-radius:3px;letter-spacing:.04em;text-transform:uppercase;flex-shrink:0}
+.gl-alerta-icone{font-size:.95rem;flex-shrink:0}
+.gl-alerta-titulo{font-size:.85rem;font-weight:700;color:var(--gray-800)}
+.gl-alerta-desc{font-size:.78rem;color:var(--gray-600);margin-bottom:.25rem;padding-left:2.2rem}
+.gl-alerta-acao{font-size:.75rem;color:var(--gl-brown);font-weight:600;padding-left:2.2rem}
+
+/* GL PRIORIDADES */
+.gl-prio-list{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem}
+.gl-prio-row{border-radius:var(--radius-md);padding:.85rem 1rem;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:.5rem;transition:box-shadow .15s,transform .12s;border:.5px solid transparent}
+.gl-prio-row:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.gl-prio-row.prio-border-critico{background:#FEF2F2;border-color:#FECACA}
+.gl-prio-row.prio-border-alta{background:#FFFBEB;border-color:#FDE68A}
+.gl-prio-row.prio-border-media{background:var(--gl-beige-light);border-color:var(--gl-beige-dark)}
+.gl-prio-row.prio-border-ok{background:#F0FDF4;border-color:#BBF7D0}
+.gl-prio-comment-tint-critico{background:rgba(220,38,38,.07)}
+.gl-prio-comment-tint-alta{background:rgba(245,158,11,.07)}
+.gl-prio-comment-tint-media{background:rgba(104,109,87,.07)}
+.gl-prio-comment-tint-ok{background:rgba(21,128,61,.07)}
+.gl-prio-top{display:flex;align-items:center;justify-content:space-between}
+.gl-prio-pos{width:20px;height:20px;border-radius:50%;background:var(--gl-beige);display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:800;color:var(--gl-brown);flex-shrink:0}
+.gl-prio-badge{font-size:.57rem;font-weight:700;padding:.08rem .3rem;border-radius:3px;text-transform:uppercase;letter-spacing:.04em}
+.prio-tag-critico{background:#FEE2E2;color:#991B1B}
+.prio-tag-alta{background:#FEF3C7;color:#92400E}
+.prio-tag-media{background:var(--gl-beige);color:var(--gl-brown)}
+.prio-tag-ok{background:#D1FAE5;color:#166534}
+.gl-prio-unidade{font-size:.9rem;font-weight:700;color:var(--gray-800);line-height:1.2}
+.gl-prio-meta{display:flex;align-items:baseline;gap:.3rem}
+.gl-prio-nps{font-size:1.45rem;font-weight:800;line-height:1}
+.gl-prio-nps-label{font-size:.58rem;color:var(--gray-400);text-transform:uppercase;letter-spacing:.05em}
+.gl-prio-resp{font-size:.62rem;color:var(--gray-400)}
+.gl-prio-btn{align-self:flex-end;padding:.2rem .6rem;background:var(--gl-olive);color:#fff;border:none;border-radius:var(--radius-sm);font-size:.62rem;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;transition:background .15s}
+.gl-prio-btn:hover{background:var(--gl-olive-dark)}
+
+/* GL RECORRÊNCIA badges */
+.gl-rec-badge{display:inline-block;padding:.12rem .4rem;border-radius:3px;font-size:.65rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase}
+.rec-1{background:var(--gray-100);color:var(--gray-500)}
+.rec-2{background:#FEF3C7;color:#92400E}
+.rec-3{background:#FEE2E2;color:#991B1B}
+.gl-rec-legenda{font-size:.72rem;color:var(--gray-400);margin-top:.75rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+
+/* GL PROBLEMAS GRID */
+.gl-prob-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.75rem}
+.gl-prob-card{background:#fff;border:1px solid var(--gl-beige-dark);border-radius:var(--radius-md);padding:.9rem 1rem;display:flex;flex-direction:column;gap:.45rem;box-shadow:var(--shadow-sm)}
+.gl-prob-toggle{background:none;border:none;font-size:.7rem;font-weight:600;color:var(--gl-olive);cursor:pointer;padding:0;font-family:inherit;display:flex;align-items:center;gap:.25rem}
+.gl-prob-toggle:hover{color:var(--gl-olive-dark)}
+.gl-prob-accordion{display:none;border-top:1px dashed var(--gl-beige-dark);padding-top:.65rem;margin-top:.1rem;flex-direction:column;gap:.65rem}
+.gl-prob-accordion.open{display:flex}
+.gl-prob-unit-header{display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem}
+.gl-prob-unit-name{font-size:.75rem;font-weight:700;color:var(--gray-800)}
+.gl-prob-unit-count{font-size:.65rem;color:var(--gray-400)}
+.gl-prob-det-comment{background:#fdf5f5;border-left:3px solid #e0a0a0;border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:.4rem .6rem;font-size:.7rem;color:var(--gray-700);line-height:1.45;margin-bottom:.3rem}
+.gl-prob-det-date{font-size:.62rem;color:var(--gray-400);margin-bottom:.15rem}
+.gl-prob-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem}
+.gl-prob-card-tema{font-size:.86rem;font-weight:700;color:var(--gray-800)}
+.gl-prob-card-meta{display:flex;gap:.75rem;flex-wrap:wrap}
+.gl-prob-stat{font-size:.72rem;color:var(--gray-500)}
+.gl-prob-stat strong{color:var(--gray-800)}
+.gl-prob-card-units{font-size:.7rem;color:var(--gray-400);line-height:1.4}
+.gl-prob-card-bottom{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-top:.1rem}
+.gl-prob-btn{padding:.28rem .65rem;background:transparent;border:1.5px solid var(--gl-olive);color:var(--gl-olive);border-radius:var(--radius-sm);font-size:.72rem;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;transition:all .15s;flex-shrink:0}
+.gl-prob-btn:hover{background:var(--gl-olive);color:#fff}
+.gl-prob-acao{font-size:.7rem;color:var(--gl-brown);border-top:1px dashed var(--gl-beige-dark);padding-top:.4rem;line-height:1.4}
+
+/* GL TIMELINE */
+.gl-timeline-wrap{display:flex;align-items:center;gap:.4rem;flex:1;min-width:0}
+.gl-tl-label{font-size:.63rem;color:var(--gray-400);white-space:nowrap;flex-shrink:0}
+.gl-tl-rec{font-size:.63rem;color:var(--gray-500);white-space:nowrap;flex-shrink:0}
+.gl-timeline{display:flex;gap:3px;align-items:center}
+.gl-tl-day{width:12px;height:12px;border-radius:2px;background:var(--gl-beige);flex-shrink:0}
+.gl-tl-day.gl-tl-active{background:var(--gl-brown)}
+
+/* GL RANK TABLE row hover */
+.gl-rank-tr{cursor:pointer;transition:background .1s}
+.gl-rank-tr:hover td{background:var(--gl-beige-light) !important}
+
+/* GL PRIO — previews de comentários dentro do card */
+.gl-prio-previews{margin-top:.45rem;display:flex;flex-direction:column;gap:.3rem;border-top:1px dashed var(--gl-beige-dark);padding-top:.4rem}
+.gl-prio-preview-item{background:var(--gl-beige-light);border-radius:var(--radius-sm);padding:.35rem .5rem}
+.gl-prio-preview-meta{display:flex;align-items:center;gap:.3rem;flex-wrap:wrap;margin-bottom:.18rem}
+.gl-prio-preview-date{font-size:.6rem;color:var(--gray-400);margin-left:auto}
+.gl-prio-preview-resumo{font-size:.71rem;color:var(--gray-700);line-height:1.4}
+.gl-prio-cancel-tag{font-size:.58rem;font-weight:700;background:#FEE2E2;color:#991B1B;padding:.08rem .32rem;border-radius:3px}
+
+/* OVERVIEW 2-col layout */
+.gl-overview-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem;align-items:start}
+@media(max-width:900px){.gl-overview-grid{grid-template-columns:1fr}}
+/* GL DESTAQUES — quadros de resumo no topo */
+.gl-destaques-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.65rem;margin-bottom:0}
+.gl-destaque-card{background:#fff;border:1px solid var(--gl-beige-dark);border-radius:var(--radius-md);padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,.08);display:flex;flex-direction:column;gap:.3rem;cursor:pointer;transition:box-shadow .18s,transform .12s}
+.gl-destaque-card:hover{box-shadow:0 4px 18px rgba(0,0,0,.13);transform:translateY(-2px)}
+.gl-destaque-card.destaque-alerta{border-top:3px solid var(--red);border-left:none;background:linear-gradient(160deg,#fff8f8 0%,#fff 60%)}
+.gl-destaque-card.destaque-warn{border-top:3px solid #D97706;border-left:none;background:linear-gradient(160deg,#fffbf0 0%,#fff 60%)}
+.gl-destaque-card.destaque-info{border-top:3px solid var(--gl-olive);border-left:none}
+.gl-destaque-card.destaque-ok{border-top:3px solid #15803D;border-left:none;background:linear-gradient(160deg,#f0fdf4 0%,#fff 60%)}
+.gl-destaque-label{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gray-400)}
+.gl-destaque-valor{font-size:1.9rem;font-weight:800;color:var(--gray-800);line-height:1;margin:.1rem 0}
+.gl-destaque-unidade{font-size:.82rem;font-weight:600;color:var(--gray-700)}
+.gl-destaque-sub{font-size:.68rem;color:var(--gray-400);line-height:1.35}
+.gl-destaque-runners{display:flex;flex-direction:column;gap:.18rem;margin-top:.35rem;padding-top:.35rem;border-top:1px solid var(--gl-beige)}
+.gl-destaque-runner{font-size:.68rem;color:var(--gray-500);cursor:pointer;display:flex;align-items:center;gap:.35rem;transition:color .15s}
+.gl-destaque-runner:hover{color:var(--gl-olive)}
+.gl-destaque-runner-pos{font-size:.58rem;font-weight:700;background:var(--gl-beige-dark);border-radius:100px;padding:.05rem .3rem;color:var(--gray-500);min-width:1.4rem;text-align:center;flex-shrink:0}
+/* KPI row — número em cima, label embaixo */
+.gl-kpi-row{display:grid;grid-template-columns:repeat(6,1fr);gap:.65rem;margin-bottom:.65rem}
+.gl-kpi-chip{display:flex;flex-direction:column;gap:.1rem;background:#fff;border:1px solid var(--gl-beige-dark);border-radius:var(--radius-md);padding:.5rem .85rem;box-shadow:var(--shadow-sm);min-width:0}
+.gl-kpi-num{font-size:1.2rem;font-weight:800;color:var(--gray-800);line-height:1;white-space:nowrap}
+.gl-kpi-lbl{font-size:.6rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--gray-400);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gl-kpi-chip.gl-kpi-green .gl-kpi-num{color:#15803D}
+.gl-kpi-chip.gl-kpi-amber .gl-kpi-num{color:#D97706}
+.gl-kpi-chip.gl-kpi-red .gl-kpi-num{color:var(--red)}
+.gl-kpi-chip.gl-kpi-dark{border-left:3px solid var(--red)}
+.gl-kpi-chip.gl-kpi-dark .gl-kpi-num{color:var(--red)}
+
+/* GL PAINEL — filtros por tema */
+.gl-painel-filter-bar{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.1rem}
+.gl-painel-filter-btn{padding:.28rem .65rem;border-radius:100px;font-size:.74rem;font-weight:600;border:1.5px solid var(--gl-beige-dark);background:#fff;color:var(--gray-600);cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
+.gl-painel-filter-btn:hover{border-color:var(--gl-olive);color:var(--gl-olive)}
+.gl-painel-filter-btn.active{background:var(--gl-olive);border-color:var(--gl-olive);color:#fff}
+
+/* GL PAINEL — cards de comentário */
+.gl-painel-comment-card{background:#fff;border:1px solid var(--gl-beige-dark);border-radius:var(--radius-md);padding:.8rem 1rem;margin-bottom:.55rem}
+.gl-painel-comment-card:last-child{margin-bottom:0}
+.gl-painel-comment-header{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;margin-bottom:.5rem}
+.gl-painel-resumo{font-size:.8rem;color:var(--gl-brown-dark);font-weight:600;line-height:1.45;margin-bottom:.4rem;padding:.4rem .55rem;background:var(--gl-beige-light);border-radius:var(--radius-sm)}
+.gl-painel-comentario{font-size:.78rem;color:var(--gray-600);line-height:1.5;font-style:italic;margin-bottom:.35rem}
+.gl-painel-acao-item{font-size:.72rem;color:var(--gl-olive);font-weight:600;border-top:1px dashed var(--gl-beige-dark);padding-top:.35rem;margin-top:.1rem}
+
+@media(max-width:900px){
+  .grid-2,.grid-3,.grid-2-1,.grid-1-2{grid-template-columns:1fr}
+  .sentiment-grid{grid-template-columns:repeat(2,1fr)}
+  .content{padding:1rem}
+  .filter-bar{padding:.6rem 1rem}
+  .header{padding:0 1rem}
+  .gl-panel{width:100%;max-width:100%}
+  .gl-metrics-strip{grid-template-columns:repeat(3,1fr)}
+}
+</style>
+</head>
+<body>
+
+<!-- PASSWORD SCREEN -->
+<div id="password-screen">
+  <div class="pw-card">
+    <div class="pw-logo"><img src="../Imagens_ID_Visual/Cópia de Logo Gl.png" alt="Greenlife"></div>
+    <h1>NPS Dashboard</h1>
+    <p>Greenlife Academias — Acesso restrito</p>
+    <input type="password" id="pw-input" placeholder="Digite a senha" autocomplete="current-password">
+    <button onclick="login()">Entrar</button>
+    <div class="pw-error" id="pw-error">Senha incorreta. Tente novamente.</div>
+  </div>
+</div>
+
+<!-- LOADING SCREEN -->
+<div id="loading-screen">
+  <div class="spinner"></div>
+  <p>Carregando dados do dashboard...</p>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <div class="header">
+    <div class="header-brand">
+      <div class="header-logo" style="background:#fff;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0">
+        <img src="../Imagens_ID_Visual/Cópia de Logo Gl.png" style="width:32px;height:32px;object-fit:contain;display:block">
+      </div>
+      <div>
+        <div class="header-title">NPS Dashboard</div>
+        <div class="header-subtitle">Greenlife Academias</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="header-ts" id="header-ts"></div>
+      <button class="logout-btn" onclick="logout()">Sair</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchView('geral')" id="tab-geral">Visão Geral da Rede</button>
+    <button class="tab" onclick="switchView('unidade')" id="tab-unidade">Visão por Unidade</button>
+    <button class="tab tab-alert" onclick="switchView('criticos')" id="tab-criticos">⚠ Comentários Críticos</button>
+  </div>
+
+  <!-- Filter Bar Geral (shared with criticos) -->
+  <div class="filter-bar" id="filter-bar-geral">
+    <label>Mês:</label>
+    <select id="f-mes" onchange="applyFilters()"><option value="">Todos</option></select>
+    <label>Região:</label>
+    <select id="f-regiao" onchange="applyFilters()"><option value="">Todas</option></select>
+    <label>Criticidade:</label>
+    <select id="f-criticidade" onchange="applyFilters()"><option value="">Todas</option></select>
+    <div class="filter-sep"></div>
+    <button class="btn-refresh" onclick="loadData()">↻ Atualizar</button>
+  </div>
+  <div id="filtro-ativo-bar"></div>
+
+  <!-- Filter Bar Unidade -->
+  <div class="filter-bar" id="filter-bar-unidade" style="display:none">
+    <label>Mês:</label>
+    <select id="f-unidade-mes" onchange="applyUnidadeFilters()"><option value="">Todos</option></select>
+    <div class="filter-sep"></div>
+    <button class="btn-refresh" onclick="loadData()">↻ Atualizar</button>
+  </div>
+
+  <div id="view-geral" class="content"></div>
+  <div id="view-unidade" class="content" style="display:none"></div>
+  <div id="view-criticos" class="content" style="display:none"></div>
+</div>
+
+<!-- SIDE PANEL -->
+<div class="gl-panel-overlay" id="gl-panel-overlay" onclick="closePanel()"></div>
+<div class="gl-panel" id="gl-panel">
+  <div class="gl-panel-header">
+    <div>
+      <div class="gl-panel-title" id="gl-panel-title">Unidade</div>
+      <div class="gl-panel-subtitle" id="gl-panel-subtitle"></div>
+    </div>
+    <button class="gl-panel-close" onclick="closePanel()">✕</button>
+  </div>
+  <div class="gl-panel-body" id="gl-panel-body"></div>
+</div>
+
+<script>
+// =============================================================================
+// STACKED TOTAL PLUGIN (data labels on top of stacked bars)
+// =============================================================================
+const stackedTotalPlugin = {
+  id: 'stackedTotal',
+  afterDatasetsDraw(chart) {
+    if (!chart.options._showStackedTotal) return;
+    const { ctx, data } = chart;
+    const nDs = data.datasets.length;
+    const lastMeta = chart.getDatasetMeta(nDs - 1);
+    data.datasets[0].data.forEach((_, i) => {
+      let total = 0;
+      for (let d = 0; d < nDs; d++) total += Number(data.datasets[d].data[i]) || 0;
+      if (!total) return;
+      const bar = lastMeta.data[i];
+      ctx.save();
+      ctx.font = 'bold 10px Inter,sans-serif';
+      ctx.fillStyle = '#334155';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      ctx.fillText(total, bar.x, bar.y - 2);
+      ctx.restore();
+    });
+  }
+};
+Chart.register(stackedTotalPlugin);
+
+// =============================================================================
+// CONFIG
+// =============================================================================
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwPgjgDf3p2pSwC4bKk6N6B4lA38zRtlge63C9KOONQMV2qGj7mhcVsZUP_ZkIqMfrr4w/exec';
+const PASSWORD = 'NPSGreenlife2026';
+const META_NPS = 60;
+const TEMAS_EXCLUIDOS = ['Sem comentário', 'Sem sentido'];
+
+// =============================================================================
+// STATE
+// =============================================================================
+let allRecords = [];
+let unidades = [];
+let currentView = 'geral';
+let charts = {};
+let dataTimestamp = '';
+let unidadeSelecionada = '';
+let temasViewFilter = 'todos';
+let problemasFilter = 'todos';
+
+// =============================================================================
+// AUTH
+// =============================================================================
+function login() {
+  const input = document.getElementById('pw-input');
+  if (input.value === PASSWORD) {
+    document.getElementById('password-screen').style.display = 'none';
+    loadData();
+  } else {
+    document.getElementById('pw-error').style.display = 'block';
+    input.value = '';
+    input.focus();
+  }
+}
+document.getElementById('pw-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') login();
+  document.getElementById('pw-error').style.display = 'none';
+});
+function logout() {
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('password-screen').style.display = 'flex';
+  document.getElementById('pw-input').value = '';
+  allRecords = [];
+}
+
+// =============================================================================
+// DATA LOADING
+// =============================================================================
+async function loadData() {
+  show('loading-screen', 'flex');
+  hide('app');
+  try {
+    const [dataRes, unitRes] = await Promise.all([
+      fetch(WEB_APP_URL + '?acao=dados').then(r => r.json()),
+      fetch(WEB_APP_URL + '?acao=unidades').then(r => r.json()),
+    ]);
+    allRecords = (dataRes.registros || []).filter(r => r.id);
+    unidades = Array.isArray(unitRes) ? unitRes : [];
+    dataTimestamp = dataRes.gerado_em || new Date().toISOString();
+    allRecords.forEach(r => {
+      r._date = parseDataResposta(r.data_resposta);
+      r._mesAnoKey = getMesAnoKey(r);
+      r._diaNum = getDiaNum(r);
+      r._nota = Number(r.nota) || 0;
+    });
+    buildFilters();
+    show('app');
+    hide('loading-screen');
+    updateHeaderTs();
+    renderCurrentView();
+  } catch (err) {
+    hide('loading-screen');
+    show('app');
+    document.getElementById('view-geral').innerHTML =
+      `<div class="alert-banner danger"><span class="alert-icon">⚠</span>Erro ao carregar dados: ${err.message}</div>`;
+  }
+}
+
+// =============================================================================
+// DATE HELPERS
+// =============================================================================
+function parseDataResposta(str) {
+  if (!str) return null;
+  const s = String(str).trim();
+  const br = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (br) return new Date(+br[3], +br[2] - 1, +br[1]);
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? null : d;
+}
+function getMesAnoKey(r) {
+  const ma = String(r.mes_ano || '').trim();
+  if (/^\d{2}\/\d{4}$/.test(ma)) return ma;
+  const dm = new Date(ma);
+  if (!isNaN(dm.getTime())) return pad(dm.getMonth() + 1) + '/' + dm.getFullYear();
+  if (r._date) return pad(r._date.getMonth() + 1) + '/' + r._date.getFullYear();
+  return '??';
+}
+function getDiaNum(r) {
+  const d = Number(r.dia);
+  if (d > 0) return d;
+  if (r._date) return r._date.getDate();
+  return 0;
+}
+function pad(n) { return String(n).padStart(2, '0'); }
+function fmtMesAno(key) {
+  if (!key || key === '??') return key;
+  const [m, y] = key.split('/');
+  const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  return (meses[+m - 1] || m) + '/' + y;
+}
+function prevMesAnoKey(key) {
+  if (!key || !/^\d{2}\/\d{4}$/.test(key)) return null;
+  const [m, y] = key.split('/').map(Number);
+  if (m === 1) return pad(12) + '/' + (y - 1);
+  return pad(m - 1) + '/' + y;
+}
+function normAccents(str) {
+  return String(str || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+}
+
+// =============================================================================
+// COMENTÁRIOS CRÍTICOS — detecção por intenção explícita de saída
+// =============================================================================
+function isCritico(r) {
+  // Flag explícita do backend
+  if (r.risco_cancelamento === true || r.risco_cancelamento === 'true') return true;
+  const txt = normAccents(r.comentario_original || '');
+  const frases = [
+    'nao vou renovar', 'nao renovo', 'nao vou continuar',
+    'nao vou continuar', 'cancelar minha', 'cancelar o plano',
+    'vou sair', 'quero sair', 'vou me embora', 'vou embora',
+    'vou cancelar', 'quero cancelar', 'vou encerrar',
+    'ja cancelei', 'ja encerrei',
+    'mudar para concorrencia', 'mudar pra concorrencia',
+    'ir pra concorrencia', 'ir para concorrencia',
+    'trocar de academia', 'procurar outra academia',
+    'nunca mais', 'nao volto', 'nao volto mais',
+    'ja sai', 'estou saindo', 'fui embora',
+    'nao fico', 'nao fico mais',
+    'vou desistir', 'vou procurar outro',
+    'nao vou mais', 'nao pretendo voltar',
+    'ultima vez', 'minha ultima',
+  ];
+  return frases.some(f => txt.includes(f));
+}
+
+// =============================================================================
+// FILTERS
+// =============================================================================
+function buildFilters() {
+  const meses = [...new Set(allRecords.map(r => r._mesAnoKey))].filter(m => m !== '??').sort();
+  const regioes = [...new Set(allRecords.map(r => r.regiao).filter(Boolean))].sort();
+  const crits = ['Alta', 'Crítica', 'Média', 'Baixa'];
+
+  populateSelect('f-mes', meses, v => fmtMesAno(v), v => v);
+  populateSelect('f-regiao', regioes);
+  populateSelect('f-criticidade', crits.filter(c => allRecords.some(r => r.criticidade_ia === c)));
+  populateSelect('f-unidade-mes', meses, v => fmtMesAno(v), v => v);
+
+  const unidadesList = unidades.length
+    ? unidades.map(u => u.unidade)
+    : [...new Set(allRecords.map(r => r.unidade_padronizada).filter(Boolean))].sort();
+  if (!unidadeSelecionada && unidadesList.length) unidadeSelecionada = unidadesList[0];
+}
+
+function populateSelect(id, values, labelFn, valFn) {
+  const sel = document.getElementById(id);
+  if (!sel) return;
+  const cur = sel.value;
+  const firstOpt = sel.options[0]?.value === '' ? `<option value="">${sel.options[0].text}</option>` : '';
+  sel.innerHTML = firstOpt + values.map(v => {
+    const label = labelFn ? labelFn(v) : v;
+    const val = valFn ? valFn(v) : v;
+    return `<option value="${esc(val)}">${esc(label)}</option>`;
+  }).join('');
+  if (cur && values.includes(cur)) sel.value = cur;
+}
+
+function getFilters() {
+  return {
+    mes: document.getElementById('f-mes')?.value || '',
+    regiao: document.getElementById('f-regiao')?.value || '',
+    criticidade: document.getElementById('f-criticidade')?.value || '',
+  };
+}
+function getUnidadeFilters() {
+  return { mes: document.getElementById('f-unidade-mes')?.value || '' };
+}
+function applyFilter(r, f) {
+  if (f.mes && r._mesAnoKey !== f.mes) return false;
+  if (f.regiao && r.regiao !== f.regiao) return false;
+  if (f.criticidade && r.criticidade_ia !== f.criticidade) return false;
+  return true;
+}
+function updateFiltroAtivo() {
+  const mes = document.getElementById('f-mes')?.value;
+  const regiao = document.getElementById('f-regiao')?.value;
+  const crit = document.getElementById('f-criticidade')?.value;
+  const bar = document.getElementById('filtro-ativo-bar');
+  if (!bar) return;
+  const chips = [];
+  if (mes) chips.push(`<span class="fa-label">Mês</span><span class="fa-chip">${mes}</span>`);
+  if (regiao) chips.push(`<span class="fa-label">Região</span><span class="fa-chip">${regiao}</span>`);
+  if (crit) chips.push(`<span class="fa-label">Criticidade</span><span class="fa-chip">${crit}</span>`);
+  if (chips.length) {
+    bar.innerHTML = '<span class="fa-label">Filtros ativos:</span>' + chips.join('');
+    bar.style.display = 'flex';
+  } else {
+    bar.style.display = 'none';
+  }
+}
+function applyFilters() {
+  problemasFilter = 'todos';
+  updateFiltroAtivo();
+  if (currentView === 'criticos') renderCriticosView();
+  else renderGeralView();
+}
+function applyUnidadeFilters() { renderUnidadeView(); }
+
+// =============================================================================
+// NPS CALC
+// =============================================================================
+function calcNPS(records) {
+  if (!records.length) return null;
+  const p = records.filter(r => r.tipo_nps === 'Promotor').length;
+  const d = records.filter(r => r.tipo_nps === 'Detrator').length;
+  return Math.round((p - d) / records.length * 100);
+}
+function calcNotaMedia(records) {
+  if (!records.length) return 0;
+  return records.reduce((s, r) => s + r._nota, 0) / records.length;
+}
+function npsClass(nps) {
+  if (nps === null) return 'nps-bad';
+  if (nps >= 75) return 'nps-excellent';
+  if (nps >= 50) return 'nps-good';
+  if (nps >= 0) return 'nps-ok';
+  return 'nps-neg';
+}
+function npsColorHex(nps) {
+  if (nps === null) return '#94A3B8';
+  if (nps >= 75) return '#15803D';
+  if (nps >= 50) return '#059669';
+  if (nps >= 0) return '#D97706';
+  return '#DC2626';
+}
+function groupBy(records, keyFn) {
+  const map = {};
+  records.forEach(r => {
+    const k = keyFn(r);
+    if (k === undefined || k === null || k === '') return;
+    if (!map[k]) map[k] = [];
+    map[k].push(r);
+  });
+  return map;
+}
+function topTema(recs) {
+  const temas = recs
+    .filter(r => r.tema_principal_ia && !TEMAS_EXCLUIDOS.includes(r.tema_principal_ia))
+    .map(r => r.tema_principal_ia);
+  if (!temas.length) return '';
+  const count = {};
+  temas.forEach(t => count[t] = (count[t] || 0) + 1);
+  return Object.entries(count).sort((a, b) => b[1] - a[1])[0][0];
+}
+
+// =============================================================================
+// VIEW SWITCHING
+// =============================================================================
+function switchView(v) {
+  currentView = v;
+  document.getElementById('tab-geral').classList.toggle('active', v === 'geral');
+  document.getElementById('tab-unidade').classList.toggle('active', v === 'unidade');
+  document.getElementById('tab-criticos').classList.toggle('active', v === 'criticos');
+  document.getElementById('view-geral').style.display = v === 'geral' ? '' : 'none';
+  document.getElementById('view-unidade').style.display = v === 'unidade' ? '' : 'none';
+  document.getElementById('view-criticos').style.display = v === 'criticos' ? '' : 'none';
+  document.getElementById('filter-bar-geral').style.display = (v === 'geral' || v === 'criticos') ? 'flex' : 'none';
+  document.getElementById('filter-bar-unidade').style.display = v === 'unidade' ? 'flex' : 'none';
+  if (v === 'unidade' && document.getElementById('view-unidade').innerHTML === '') renderUnidadeView();
+  if (v === 'criticos') renderCriticosView();
+}
+function renderCurrentView() { renderGeralView(); }
+function updateHeaderTs() {
+  const el = document.getElementById('header-ts');
+  if (!el) return;
+  const d = new Date(dataTimestamp);
+  if (isNaN(d.getTime())) return;
+  el.innerHTML = `Dados atualizados<br>${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'})}`;
+}
+
+// =============================================================================
+// CHART MANAGEMENT
+// =============================================================================
+function destroyChart(key) {
+  if (charts[key]) { charts[key].destroy(); delete charts[key]; }
+}
+function newChart(key, canvasId, type, data, options) {
+  destroyChart(key);
+  const ctx = document.getElementById(canvasId);
+  if (!ctx) return;
+  charts[key] = new Chart(ctx, { type, data, options: { responsive:true, maintainAspectRatio:false, ...options } });
+}
+
+// =============================================================================
+// TEMAS FILTER
+// =============================================================================
+function setTemasFilter(f) {
+  temasViewFilter = f;
+  const f2 = getFilters();
+  const recs = allRecords.filter(r => applyFilter(r, f2));
+  renderTemasChart(recs);
+  ['all','pro','neu','det'].forEach(x => {
+    const btn = document.getElementById('tfbtn-' + x);
+    if (btn) btn.className = 'cfbtn';
+  });
+  const map = { todos:'all', Promotor:'pro', Neutro:'neu', Detrator:'det' };
+  const activeBtn = document.getElementById('tfbtn-' + map[f]);
+  if (activeBtn) {
+    const cls = { todos:'active-all', Promotor:'active-pro', Neutro:'active-neu', Detrator:'active-det' };
+    activeBtn.className = 'cfbtn ' + cls[f];
+  }
+}
+
+// =============================================================================
+// PROBLEMAS FILTER
+// =============================================================================
+function setProbFilter(tema) {
+  problemasFilter = tema;
+  const f = getFilters();
+  const recs = allRecords.filter(r => applyFilter(r, f));
+  const container = document.getElementById('prob-content');
+  if (container) container.innerHTML = renderProblemasConteudo(recs);
+  // Update button visual state
+  document.querySelectorAll('.prob-filter-btn').forEach(btn => {
+    const isActive = btn.dataset.tema === tema;
+    btn.className = 'cfbtn prob-filter-btn' + (isActive ? ' active-tema' : '');
+  });
+}
+
+// =============================================================================
+// VISÃO GERAL — redesign Greenlife
+// =============================================================================
+
+// --- RECORRÊNCIA ---
+// Recebe array de strings 'YYYY-MM-DD' já ordenadas.
+// Retorna o máximo de dias consecutivos encontrado.
+function calcConsecDias(sortedDates) {
+  if (!sortedDates.length) return 0;
+  if (sortedDates.length === 1) return 1;
+  let max = 1, cur = 1;
+  for (let i = 1; i < sortedDates.length; i++) {
+    const diff = Math.round(
+      (new Date(sortedDates[i] + 'T12:00:00') - new Date(sortedDates[i-1] + 'T12:00:00')) / 86400000
+    );
+    if (diff === 1) { cur++; if (cur > max) max = cur; }
+    else if (diff > 1) cur = 1;
+  }
+  return max;
+}
+
+function recorrenciaInfo(dias) {
+  if (dias >= 3) return { label: `${dias} dias consecutivos`, cls: 'rec-3', badge: 'Recorrente' };
+  if (dias === 2) return { label: '2 dias seguidos', cls: 'rec-2', badge: 'Atenção' };
+  return { label: 'Ocorrência pontual', cls: 'rec-1', badge: 'Pontual' };
+}
+
+// --- PROBLEMAS DA REDE agrupados por tema ---
+// Retorna array com análise de recorrência, criticidade e prioridade.
+function getProblemasRede(recs) {
+  const temaMap = groupBy(
+    recs.filter(r => r.tema_principal_ia && !TEMAS_EXCLUIDOS.includes(r.tema_principal_ia)),
+    r => r.tema_principal_ia
+  );
+  return Object.entries(temaMap).map(([tema, tRecs]) => {
+    const unidades = [...new Set(tRecs.map(r => r.unidade_padronizada).filter(Boolean))];
+    const criticos = tRecs.filter(r => r.criticidade_ia === 'Crítica').length;
+    const altas    = tRecs.filter(r => r.criticidade_ia === 'Alta').length;
+    const comRisco = tRecs.filter(r => isCritico(r)).length;
+    const comAcao  = tRecs.filter(r => r.requer_acao).length;
+
+    // Dias consecutivos: de toda a rede
+    const allDates = [...new Set(
+      tRecs.filter(r => r._date).map(r => r._date.toISOString().split('T')[0])
+    )].sort();
+    const consecDias = calcConsecDias(allDates);
+
+    // Dias consecutivos: por unidade (encontra a pior)
+    let maxUnitConsec = 0; let worstUnit = '';
+    unidades.forEach(u => {
+      const uDates = [...new Set(
+        tRecs.filter(r => r.unidade_padronizada === u && r._date)
+             .map(r => r._date.toISOString().split('T')[0])
+      )].sort();
+      const uc = calcConsecDias(uDates);
+      if (uc > maxUnitConsec) { maxUnitConsec = uc; worstUnit = u; }
+    });
+
+    // Score de prioridade do problema
+    let score = tRecs.length * 2 + criticos * 15 + altas * 8
+              + comRisco * 12 + (consecDias - 1) * 10
+              + (unidades.length - 1) * 5;
+
+    const topAcao  = tRecs.find(r => r.acao_sugerida_ia)?.acao_sugerida_ia || '';
+    const resumos  = tRecs.filter(r => r.resumo_ia && r.resumo_ia !== 'Sem comentário');
+    const comentarios = tRecs.filter(r => r.comentario_original).sort((a, b) => {
+      const p = {'Crítica':0,'Alta':1,'Média':2,'Baixa':3};
+      return (p[a.criticidade_ia]||3) - (p[b.criticidade_ia]||3);
+    });
+
+    return {
+      tema, tRecs, unidades, criticos, altas, comRisco, comAcao,
+      consecDias, maxUnitConsec, worstUnit, score, topAcao,
+      resumos, comentarios, qtd: tRecs.length, allDates
+    };
+  }).sort((a, b) => b.score - a.score);
+}
+
+// --- SCORING DE PRIORIDADE POR UNIDADE ---
+// Critérios (documentados para ajuste futuro):
+//   NPS < 0            → +50pts
+//   NPS 0–29           → +30pts
+//   NPS 30–(meta-1)    → +15pts
+//   Por crítico        → +20pts (cap 50)
+//   Por alta/crítica   → +8pts  (cap 30)
+//   Por risco cancel.  → +15pts (cap 45)
+//   Por prob. recorr.  → +10pts (cap 20)
+function calcPrioScore(unitRecs) {
+  const nps      = calcNPS(unitRecs);
+  const criticos = unitRecs.filter(r => isCritico(r)).length;
+  const altas    = unitRecs.filter(r => r.criticidade_ia === 'Alta' || r.criticidade_ia === 'Crítica').length;
+  const riscos   = unitRecs.filter(r => r.risco_cancelamento).length;
+  const recorr   = unitRecs.filter(r => r.problema_recorrente).length;
+  let s = 0;
+  if (nps === null) s += 20;
+  else if (nps < 0) s += 50;
+  else if (nps < 30) s += 30;
+  else if (nps < META_NPS) s += 15;
+  s += Math.min(criticos * 20, 50);
+  s += Math.min(altas * 8, 30);
+  s += Math.min(riscos * 15, 45);
+  s += Math.min(recorr * 10, 20);
+  return s;
+}
+
+function getPrioLevel(score) {
+  if (score >= 80) return 'critico';
+  if (score >= 45) return 'alta';
+  if (score >= 20) return 'media';
+  return 'ok';
+}
+
+// --- ALERTAS CRÍTICOS ---
+function buildAlertas(recs, problemas) {
+  const alertas = [];
+  const byUnit = groupBy(recs, r => r.unidade_padronizada);
+
+  // 1. Cancelamentos explícitos
+  const cancel = recs.filter(r => isCritico(r));
+  if (cancel.length > 0) {
+    const units = [...new Set(cancel.map(r => r.unidade_padronizada).filter(Boolean))];
+    alertas.push({
+      nivel: 'critico', icone: '🚨',
+      titulo: `${cancel.length} cliente${cancel.length > 1 ? 's' : ''} com intenção de cancelamento`,
+      descricao: `Em ${units.length} unidade${units.length > 1 ? 's' : ''}: ${units.slice(0,3).join(', ')}${units.length > 3 ? ` +${units.length-3}` : ''}`,
+      acao: 'Contato imediato recomendado — clique para ver',
+      onclick: "switchView('criticos')",
+    });
+  }
+
+  // 2. Temas com 3+ dias consecutivos
+  problemas.filter(p => p.consecDias >= 3).forEach(p => {
+    alertas.push({
+      nivel: 'critico', icone: '🔁',
+      titulo: `${p.tema} — ${p.consecDias} dias consecutivos na rede`,
+      descricao: `${p.qtd} comentário${p.qtd>1?'s':''} em ${p.unidades.length} unidade${p.unidades.length>1?'s':''}${p.worstUnit ? '. Maior foco: ' + p.worstUnit : ''}`,
+      acao: p.topAcao || 'Verificar e encaminhar aos gerentes',
+      onclick: `openProblemaPanel('${p.tema.replace(/'/g, "\\'")}')`,
+    });
+  });
+
+  // 3. Temas com 2 dias consecutivos + criticidade elevada
+  problemas.filter(p => p.consecDias === 2 && (p.criticos > 0 || p.altas >= 2)).forEach(p => {
+    alertas.push({
+      nivel: 'alto', icone: '⚠️',
+      titulo: `${p.tema} — 2 dias seguidos, criticidade elevada`,
+      descricao: `${p.qtd} ocorrência${p.qtd>1?'s':''} em ${p.unidades.length} unidade${p.unidades.length>1?'s':''}${p.criticos > 0 ? `, ${p.criticos} crítico${p.criticos>1?'s':''}` : ''}`,
+      acao: p.topAcao || 'Monitorar e acionar gerente preventivamente',
+      onclick: `openProblemaPanel('${p.tema.replace(/'/g, "\\'")}')`,
+    });
+  });
+
+  // 4. Unidades com NPS muito negativo (≤ −20, mín. 3 respostas)
+  Object.entries(byUnit).filter(([,v]) => v.length >= 3).forEach(([u, v]) => {
+    const nps = calcNPS(v);
+    if (nps !== null && nps <= -20) {
+      const cr = v.filter(r => isCritico(r)).length;
+      alertas.push({
+        nivel: 'alto', icone: '📉',
+        titulo: `NPS crítico — ${u}`,
+        descricao: `NPS ${nps}% com ${v.length} respostas${cr > 0 ? `. ${cr} risco${cr>1?'s':''} de cancelamento` : ''}`,
+        acao: 'Analisar causas e acionar gerente da unidade',
+        onclick: `openUnitPanel('${u.replace(/'/g, "\\'")}')`,
+      });
+    }
+  });
+
+  return alertas;
+}
+
+// --- PRIORIDADES DE HOJE ---
+function buildPrioridades(recs) {
+  const byUnit = groupBy(recs, r => r.unidade_padronizada);
+  return Object.entries(byUnit).map(([unidade, uRecs]) => {
+    const score    = calcPrioScore(uRecs);
+    const level    = getPrioLevel(score);
+    const nps      = calcNPS(uRecs);
+    const criticos = uRecs.filter(r => isCritico(r)).length;
+    const altas    = uRecs.filter(r => r.criticidade_ia === 'Alta' || r.criticidade_ia === 'Crítica').length;
+    const tema     = topTema(uRecs);
+    const regiao   = uRecs[0]?.regiao || '';
+
+    // Dias consecutivos do top tema nesta unidade
+    const tRecs = uRecs.filter(r => r.tema_principal_ia === tema && r._date);
+    const tDates = [...new Set(tRecs.map(r => r._date.toISOString().split('T')[0]))].sort();
+    const consecTema = calcConsecDias(tDates);
+
+    // Melhor ação sugerida
+    const acaoRec = uRecs.filter(r => r.acao_sugerida_ia && r.requer_acao)
+      .sort((a, b) => {
+        const p = {'Crítica':0,'Alta':1,'Média':2,'Baixa':3};
+        return (p[a.criticidade_ia]||3) - (p[b.criticidade_ia]||3);
+      })[0];
+
+    const motivos = [];
+    if (criticos > 0)    motivos.push(`${criticos} risco${criticos>1?'s':''} de cancelamento`);
+    if (nps !== null && nps < 0) motivos.push(`NPS negativo (${nps}%)`);
+    if (consecTema >= 2 && tema) motivos.push(`${tema} por ${consecTema} dias seguidos`);
+    if (altas >= 3)      motivos.push(`${altas} problemas de alta criticidade`);
+
+    return { unidade, score, level, nps, criticos, altas, tema, regiao,
+             consecTema, acaoRec, motivos, qtd: uRecs.length, recs: uRecs };
+  })
+  .filter(x => x.score >= 15)
+  .sort((a, b) => b.score - a.score)
+  .slice(0, 10);
+}
+
+// =============================================================================
+// RENDER — ALERTAS CRÍTICOS
+// =============================================================================
+function renderAlertasCriticos(alertas) {
+  if (!alertas.length) return '';
+  const levelCfg = {
+    critico: { bg:'#FFF0F0', border:'#DC2626', badgeBg:'#DC2626', badgeColor:'#fff', label:'Crítico' },
+    alto:    { bg:'#FFFBEB', border:'#F59E0B', badgeBg:'#F59E0B', badgeColor:'#fff', label:'Alto' },
+  };
+  const items = alertas.map((a, i) => {
+    const cfg = levelCfg[a.nivel] || levelCfg.alto;
+    return `<div class="gl-alerta" style="background:${cfg.bg};border-left:4px solid ${cfg.border};${a.onclick ? 'cursor:pointer' : ''}" onclick="${a.onclick || ''}">
+      <div class="gl-alerta-top">
+        <span class="gl-alerta-badge" style="background:${cfg.badgeBg};color:${cfg.badgeColor}">${cfg.label}</span>
+        <span class="gl-alerta-icone">${a.icone}</span>
+        <div class="gl-alerta-titulo">${esc(a.titulo)}</div>
+      </div>
+      <div class="gl-alerta-desc">${esc(a.descricao)}</div>
+      <div class="gl-alerta-acao">→ ${esc(a.acao)}</div>
+    </div>`;
+  }).join('');
+
+  return `<div class="gl-section">
+    <div class="gl-section-header">
+      <div class="gl-section-title">Alertas críticos</div>
+      <div class="gl-section-sub">${alertas.length} situação${alertas.length > 1 ? 'ões' : ''} que exige${alertas.length === 1 ? '' : 'm'} atenção imediata</div>
+    </div>
+    <div class="gl-alertas-list">${items}</div>
+  </div>`;
+}
+
+// =============================================================================
+// RENDER — QUADROS DE DESTAQUE (topo da Visão Geral)
+// =============================================================================
+function renderResumoDestaques(recs) {
+  const byUnit = groupBy(recs, r => r.unidade_padronizada);
+
+  // NPS rank (mín. 3 respostas)
+  const npsRank = Object.entries(byUnit)
+    .filter(([, v]) => v.length >= 3)
+    .map(([u, v]) => ({ u, nps: calcNPS(v), n: v.length }))
+    .filter(x => x.nps !== null)
+    .sort((a, b) => a.nps - b.nps);
+
+  // Criticidade rank
+  const critRank = Object.entries(byUnit)
+    .map(([u, v]) => ({
+      u,
+      altas: v.filter(r => r.criticidade_ia === 'Alta' || r.criticidade_ia === 'Crítica').length,
+      total: v.length,
+      criticos: v.filter(r => r.criticidade_ia === 'Crítica').length,
+    }))
+    .filter(x => x.altas > 0)
+    .sort((a, b) => b.altas - a.altas);
+
+  // Unidades abaixo da meta
+  const abaixoMeta = npsRank.filter(x => x.nps < META_NPS).length;
+  const totalUnits = Object.keys(byUnit).length;
+  const ratioAbaixo = totalUnits > 0 ? abaixoMeta / totalUnits : 0;
+
+  // KPIs totais
+  const totalRespostas = recs.length;
+  const promotores = recs.filter(r => r.tipo_nps === 'Promotor').length;
+  const neutros = recs.filter(r => r.tipo_nps === 'Neutro').length;
+  const detratores = recs.filter(r => r.tipo_nps === 'Detrator').length;
+  const cancelamento = recs.filter(r => isCritico(r)).length;
+
+  // Helper: 2º e 3º menores (runners)
+  function makeRunners(arr, clickFn, labelFn) {
+    return arr.slice(1, 3).map((x, i) =>
+      `<div class="gl-destaque-runner" onclick="event.stopPropagation();${clickFn(x)}">
+        <span class="gl-destaque-runner-pos">${i + 2}º</span>${esc(x.u)} · ${labelFn(x)}
+      </div>`
+    ).join('');
+  }
+
+  // Card 1: menor NPS
+  let card1 = '';
+  if (npsRank.length) {
+    const pior = npsRank[0];
+    const npsColor = pior.nps < 0 ? 'var(--red)' : '#D97706';
+    const runners = makeRunners(npsRank,
+      x => `openUnitPanel('${esc(x.u)}')`,
+      x => { const c = x.nps < 0 ? 'var(--red)' : '#D97706'; return `<span style="color:${c};font-weight:700">${x.nps}%</span>`; }
+    );
+    card1 = `<div class="gl-destaque-card destaque-alerta" onclick="openUnitPanel('${esc(pior.u)}')">
+      <div class="gl-destaque-label">Unidade com menor NPS</div>
+      <div class="gl-destaque-valor" style="color:${npsColor}">${pior.nps}%</div>
+      <div class="gl-destaque-unidade">${esc(pior.u)}</div>
+      <div class="gl-destaque-sub">${pior.n} respostas · clique para detalhar</div>
+      ${runners ? `<div class="gl-destaque-runners">${runners}</div>` : ''}
+    </div>`;
+  }
+
+  // Card 2: mais alta criticidade
+  let card2 = '';
+  if (critRank.length) {
+    const pior = critRank[0];
+    const runners = makeRunners(critRank,
+      x => `openUnitPanel('${esc(x.u)}')`,
+      x => `<span style="color:#D97706;font-weight:700">${x.altas} altas</span>`
+    );
+    card2 = `<div class="gl-destaque-card destaque-warn" onclick="openUnitPanel('${esc(pior.u)}')">
+      <div class="gl-destaque-label">Mais comentários de alta criticidade</div>
+      <div class="gl-destaque-valor" style="color:var(--amber)">${pior.altas}</div>
+      <div class="gl-destaque-unidade">${esc(pior.u)}</div>
+      <div class="gl-destaque-sub">${pior.criticos > 0 ? pior.criticos + ' Crítico' + (pior.criticos > 1 ? 's' : '') + ' · ' : ''}${pior.total} respostas total</div>
+      ${runners ? `<div class="gl-destaque-runners">${runners}</div>` : ''}
+    </div>`;
+  }
+
+  // Card 3: unidades abaixo da meta — cor por gravidade
+  const metaColor = ratioAbaixo >= 0.75 ? 'var(--red)' : ratioAbaixo >= 0.5 ? '#D97706' : '#15803D';
+  const metaBorderCls = ratioAbaixo >= 0.75 ? 'destaque-alerta' : ratioAbaixo >= 0.5 ? 'destaque-warn' : 'destaque-ok';
+  const metaMsg = ratioAbaixo >= 0.75 ? 'Situação crítica na rede' : ratioAbaixo >= 0.5 ? 'Atenção: maioria abaixo da meta' : `${totalUnits - abaixoMeta} unidade${(totalUnits - abaixoMeta) !== 1 ? 's' : ''} atingindo a meta`;
+  // Melhores unidades (acima da meta) como destaque positivo
+  const melhores = [...npsRank].reverse().filter(x => x.nps >= META_NPS).slice(0, 2);
+  const metaRunnersHtml = melhores.map((x, i) =>
+    `<div class="gl-destaque-runner" onclick="event.stopPropagation();openUnitPanel('${esc(x.u)}')">
+      <span class="gl-destaque-runner-pos" style="background:#dcfce7;color:#15803D">${i + 1}º</span>${esc(x.u)}
+    </div>`
+  ).join('');
+  const card3 = `<div class="gl-destaque-card ${metaBorderCls}">
+    <div class="gl-destaque-label">Unidades abaixo da meta</div>
+    <div class="gl-destaque-valor" style="color:${metaColor}">${abaixoMeta}<span style="font-size:.8rem;font-weight:400;color:var(--gray-400)"> / ${totalUnits}</span></div>
+    <div class="gl-destaque-unidade">Meta: NPS ${META_NPS}%</div>
+    <div class="gl-destaque-sub">${metaMsg}</div>
+    ${metaRunnersHtml ? `<div class="gl-destaque-runners">${metaRunnersHtml}</div>` : ''}
+  </div>`;
+
+  // NPS da rede
+  const npsRede = calcNPS(recs);
+  const npsRedeColor = npsRede === null ? 'var(--gray-500)' : npsRede >= META_NPS ? '#15803D' : npsRede >= 0 ? '#D97706' : 'var(--red)';
+
+  // KPI row
+  const kpiRow = `<div class="gl-kpi-row">
+    <div class="gl-kpi-chip" style="border-left:3px solid ${npsRedeColor}"><span class="gl-kpi-num" style="color:${npsRedeColor}">${npsRede !== null ? npsRede + '%' : '--'}</span><span class="gl-kpi-lbl">NPS da Rede</span></div>
+    <div class="gl-kpi-chip"><span class="gl-kpi-num">${totalRespostas}</span><span class="gl-kpi-lbl">Respostas</span></div>
+    <div class="gl-kpi-chip gl-kpi-green"><span class="gl-kpi-num">${promotores}</span><span class="gl-kpi-lbl">Promotores</span></div>
+    <div class="gl-kpi-chip gl-kpi-amber"><span class="gl-kpi-num">${neutros}</span><span class="gl-kpi-lbl">Neutros</span></div>
+    <div class="gl-kpi-chip gl-kpi-red"><span class="gl-kpi-num">${detratores}</span><span class="gl-kpi-lbl">Detratores</span></div>
+    <div class="gl-kpi-chip gl-kpi-dark"><span class="gl-kpi-num">${cancelamento}</span><span class="gl-kpi-lbl">Possibilidade de cancelamento</span></div>
+  </div>`;
+
+  return `<div class="gl-destaques-grid">${[card1, card2, card3].filter(Boolean).join('')}</div>`;
+}
+
+// =============================================================================
+// RENDER — PRIORIDADES DE HOJE
+// =============================================================================
+function renderPrioridadesHoje(prioridades) {
+  if (!prioridades.length) return '';
+  const levelCfg = {
+    critico: { border:'#DC2626', badge:'Crítico', badgeCls:'prio-tag-critico' },
+    alta:    { border:'#F59E0B', badge:'Alto',    badgeCls:'prio-tag-alta'    },
+    media:   { border:'var(--gl-olive)', badge:'Médio', badgeCls:'prio-tag-media' },
+    ok:      { border:'#15803D', badge:'Baixo',   badgeCls:'prio-tag-ok'      },
+  };
+
+  const rows = prioridades.map((p, i) => {
+    const cfg = levelCfg[p.level] || levelCfg.media;
+    const npsColor = p.nps !== null && p.nps >= META_NPS ? '#15803D' : p.nps !== null && p.nps >= 0 ? '#D97706' : '#DC2626';
+    const borderCls = `prio-border-${p.level || 'media'}`;
+
+    const commentTintCls = `gl-prio-comment-tint-${p.level || 'media'}`;
+
+    // comentários de criticidade alta/crítica mais recentes primeiro
+    const preview = p.recs
+      .filter(r => r.resumo_ia && r.resumo_ia !== 'Sem comentário'
+        && (r.criticidade_ia === 'Crítica' || r.criticidade_ia === 'Alta'))
+      .sort((a, b) => (b._date||0) - (a._date||0))
+      .slice(0, 3);
+
+    const previewHTML = preview.length ? `
+      <div class="gl-prio-previews">
+        ${preview.map(r => {
+          const cancelTag = isCritico(r) ? `<span class="gl-prio-cancel-tag">Cancelamento</span>` : '';
+          return `<div class="gl-prio-preview-item ${commentTintCls}">
+            <div class="gl-prio-preview-meta">
+              ${cancelTag}
+              <span class="gl-prio-preview-date">${r._date ? r._date.toLocaleDateString('pt-BR') : ''}</span>
+            </div>
+            <div class="gl-prio-preview-resumo">${esc(r.resumo_ia)}</div>
+          </div>`;
+        }).join('')}
+      </div>` : '';
+
+    const levelLabel = {'critico':'Crítico','alta':'Alto','media':'Médio','ok':'Baixo'}[p.level] || 'Médio';
+    const levelColor = {'critico':'#991B1B','alta':'#92400E','media':cfg.border,'ok':'#166534'}[p.level] || cfg.border;
+
+    return `<div class="gl-prio-row ${borderCls}">
+      <div class="gl-prio-top">
+        <div style="display:flex;align-items:center;gap:.4rem">
+          <div class="gl-prio-pos">${i + 1}</div>
+          <span style="font-size:.68rem;font-weight:600;color:${levelColor}">${levelLabel}</span>
+        </div>
+        <div style="text-align:right">
+          <div class="gl-prio-nps" style="color:${npsColor}">${p.nps !== null ? p.nps + '%' : '—'}</div>
+          <div class="gl-prio-resp">${p.qtd} resp.</div>
+        </div>
+      </div>
+      <div class="gl-prio-unidade">${esc(p.unidade)}</div>
+      ${previewHTML}
+      <button class="gl-prio-btn" onclick="openPrioPainel('${esc(p.unidade)}')">Ver detalhes →</button>
+    </div>`;
+  }).join('');
+
+  return `<div class="gl-section" style="margin-top:1.5rem">
+    <div class="gl-section-header" style="margin-bottom:1rem;padding-bottom:.75rem;border-bottom:2px solid var(--gl-beige-dark)">
+      <div>
+        <div style="font-family:'Playfair Display',Georgia,serif;font-size:1.4rem;font-weight:700;color:var(--gl-brown-dark);letter-spacing:-.01em;line-height:1.1">Prioridades de hoje</div>
+        <div style="font-size:.75rem;color:var(--gray-500);margin-top:.2rem">Unidades ordenadas por gravidade — encaminhe aos gerentes</div>
+      </div>
+    </div>
+    <div class="gl-prio-list">${rows}</div>
+  </div>`;
+}
+
+// =============================================================================
+// PAINEL DE PRIORIDADE — com filtro por tema e comentários completos
+// =============================================================================
+let _prioPainelUnit = '';
+let _prioPainelTema = 'todos';
+
+function openPrioPainel(unidade) {
+  _prioPainelUnit = unidade;
+  _prioPainelTema = 'todos';
+
+  const uRecs = allRecords.filter(r => r.unidade_padronizada === unidade);
+  const nps      = calcNPS(uRecs);
+  const regiao   = uRecs[0]?.regiao || '';
+  const npsColor = nps !== null && nps >= META_NPS ? '#fff' : nps !== null && nps >= 0 ? '#FDE68A' : '#FCA5A5';
+
+  document.getElementById('gl-panel-title').textContent = unidade;
+  document.getElementById('gl-panel-subtitle').textContent =
+    `${regiao ? regiao + ' · ' : ''}${uRecs.length} respostas · NPS ${nps !== null ? nps + '%' : '—'}`;
+
+  // Temas disponíveis para filtro
+  const temas = [...new Set(
+    uRecs.filter(r => r.tema_principal_ia && !TEMAS_EXCLUIDOS.includes(r.tema_principal_ia))
+         .map(r => r.tema_principal_ia)
+  )].sort();
+
+  const filterBtns = `
+    <div class="gl-painel-filter-bar" id="prio-painel-filters">
+      <button class="gl-painel-filter-btn active" onclick="filterPrioPainel('todos')" data-tema="todos">Todos</button>
+      ${temas.map(t => `<button class="gl-painel-filter-btn" onclick="filterPrioPainel('${esc(t)}')" data-tema="${esc(t)}">${esc(t)}</button>`).join('')}
+    </div>`;
+
+  document.getElementById('gl-panel-body').innerHTML = `
+    <div class="gl-panel-section" style="padding-bottom:0">
+      <div class="gl-panel-section-title">Filtrar por tema</div>
+      ${filterBtns}
+    </div>
+    <div class="gl-panel-section" id="prio-painel-comments" style="padding-top:.75rem">
+      ${renderPrioPainelComments(uRecs, 'todos')}
+    </div>`;
+
+  document.getElementById('gl-panel-overlay').classList.add('open');
+  document.getElementById('gl-panel').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function filterPrioPainel(tema) {
+  _prioPainelTema = tema;
+  // Atualiza botões
+  document.querySelectorAll('.gl-painel-filter-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tema === tema);
+  });
+  // Atualiza comentários
+  const uRecs = allRecords.filter(r => r.unidade_padronizada === _prioPainelUnit);
+  document.getElementById('prio-painel-comments').innerHTML =
+    renderPrioPainelComments(uRecs, tema);
+}
+
+function renderPrioPainelComments(uRecs, tema) {
+  // Filtra por tema e ordena: mais crítico + mais recente primeiro
+  let filtered = uRecs.filter(r => r.comentario_original || r.resumo_ia);
+  if (tema !== 'todos') {
+    filtered = filtered.filter(r => r.tema_principal_ia === tema);
+  }
+  const ord = {'Crítica':0,'Alta':1,'Média':2,'Baixa':3};
+  filtered.sort((a, b) => {
+    const cDiff = (ord[a.criticidade_ia]||3) - (ord[b.criticidade_ia]||3);
+    if (cDiff !== 0) return cDiff;
+    return (b._date||0) - (a._date||0);
+  });
+
+  if (!filtered.length) {
+    return `<div style="text-align:center;padding:2rem;color:var(--gray-400);font-size:.85rem">Nenhum comentário para este filtro.</div>`;
+  }
+
+  return filtered.map(r => {
+    const critCls = (r.criticidade_ia||'baixa').toLowerCase()
+      .replace(/[íi]/g,'i').replace(/[eé]/g,'e').replace(/ê/g,'e');
+    const ncClass  = r.tipo_nps === 'Promotor' ? 'nc-promotor' : r.tipo_nps === 'Detrator' ? 'nc-detrator' : 'nc-neutro';
+    const cancelBadge = isCritico(r)
+      ? `<span style="background:#FEE2E2;color:#991B1B;font-size:.63rem;font-weight:700;padding:.12rem .4rem;border-radius:3px">Possibilidade de cancelamento</span>` : '';
+
+    return `<div class="gl-painel-comment-card">
+      <div class="gl-painel-comment-header">
+        <span class="nota-circle ${ncClass}" style="width:24px;height:24px;font-size:.7rem;flex-shrink:0">${r._nota}</span>
+        <span class="tag-crit crit-${critCls}" style="font-size:.63rem">${esc(r.criticidade_ia||'—')}</span>
+        ${r.tema_principal_ia ? `<span class="tag-theme" style="font-size:.63rem">${esc(r.tema_principal_ia)}</span>` : ''}
+        ${cancelBadge}
+        <span style="font-size:.68rem;color:var(--gray-400);margin-left:auto">${r._date ? r._date.toLocaleDateString('pt-BR') : ''}</span>
+      </div>
+      ${r.resumo_ia && r.resumo_ia !== 'Sem comentário'
+        ? `<div class="gl-painel-resumo">💡 ${esc(r.resumo_ia)}</div>` : ''}
+      ${r.comentario_original
+        ? `<div class="gl-painel-comentario">"${esc(r.comentario_original)}"</div>` : ''}
+      ${r.acao_sugerida_ia
+        ? `<div class="gl-painel-acao-item">→ ${esc(r.acao_sugerida_ia)}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// =============================================================================
+// RENDER — MÉTRICAS GERAIS (NPS hero + strip)
+// =============================================================================
+function renderMetricasGerais(recs, nps, npsDelta, mesPrev, promotores, neutros, detratores, criticos, byUnit) {
+  let deltaStr = '';
+  if (npsDelta !== null && mesPrev) {
+    const sign  = npsDelta > 0 ? '+' : '';
+    const icon  = npsDelta > 0 ? '▲' : npsDelta < 0 ? '▼' : '—';
+    const color = npsDelta > 0 ? 'rgba(255,255,255,.85)' : npsDelta < 0 ? '#FCA5A5' : 'rgba(255,255,255,.6)';
+    deltaStr = `<span class="gl-hero-delta" style="color:${color}">${icon} ${sign}${npsDelta}pp vs ${fmtMesAno(mesPrev)}</span>`;
+  }
+  const metaStr = nps !== null
+    ? (nps >= META_NPS ? `✓ ${nps - META_NPS}pp acima da meta` : `↓ ${Math.abs(nps - META_NPS)}pp abaixo da meta (${META_NPS}%)`)
+    : `Meta: ${META_NPS}%`;
+
+  return `<div class="gl-section">
+    <div style="display:grid;grid-template-columns:220px 1fr;gap:1rem;align-items:start;margin-bottom:.75rem">
+      <div class="gl-hero-card">
+        <div class="gl-hero-label">NPS da Rede</div>
+        <div class="gl-hero-value">${nps !== null ? nps + '%' : '—'}</div>
+        <div class="gl-hero-meta">${metaStr}</div>
+        ${deltaStr}
+      </div>
+      <div class="gl-metrics-strip" style="margin-bottom:0">
+        <div class="gl-metric">
+          <div class="gl-metric-label">Respostas</div>
+          <div class="gl-metric-value">${recs.length}</div>
+          <div class="gl-metric-sub">${Object.keys(byUnit).length} unidades</div>
+        </div>
+        <div class="gl-metric success">
+          <div class="gl-metric-label">Promotores</div>
+          <div class="gl-metric-value">${promotores}</div>
+          <div class="gl-metric-sub">${recs.length > 0 ? (promotores/recs.length*100).toFixed(0) + '%' : '—'}</div>
+        </div>
+        <div class="gl-metric">
+          <div class="gl-metric-label">Neutros</div>
+          <div class="gl-metric-value">${neutros}</div>
+          <div class="gl-metric-sub">${recs.length > 0 ? (neutros/recs.length*100).toFixed(0) + '%' : '—'}</div>
+        </div>
+        <div class="gl-metric ${detratores > 0 ? 'danger' : ''}">
+          <div class="gl-metric-label">Detratores</div>
+          <div class="gl-metric-value">${detratores}</div>
+          <div class="gl-metric-sub">${recs.length > 0 ? (detratores/recs.length*100).toFixed(0) + '%' : '—'}</div>
+        </div>
+        <div class="gl-metric ${criticos > 0 ? 'danger' : ''}" ${criticos > 0 ? "onclick=\"switchView('criticos')\" style=\"cursor:pointer\"" : ''}>
+          <div class="gl-metric-label">Cancelamentos</div>
+          <div class="gl-metric-value">${criticos}</div>
+          <div class="gl-metric-sub">risco detectado</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// =============================================================================
+// RENDER — PROBLEMAS MAIS RECORRENTES DA REDE
+// =============================================================================
+function renderProblemasRecorrentes(problemas) {
+  const visiveis = problemas.filter(p =>
+    p.qtd >= 2 || p.criticos > 0 || p.consecDias >= 2
+  ).slice(0, 12);
+
+  if (!visiveis.length) return '';
+
+  const rows = visiveis.map((p, idx) => {
+    const rec = recorrenciaInfo(p.consecDias);
+    const unidadesStr = p.unidades.slice(0, 3).join(', ') + (p.unidades.length > 3 ? ` +${p.unidades.length - 3}` : '');
+    const nivel = p.criticos > 0 ? 'critico' : p.altas > 0 ? 'alta' : p.comRisco > 0 ? 'alta' : 'media';
+    const nivelLabel = { critico:'Crítico', alta:'Alto', media:'Médio' }[nivel] || 'Médio';
+    const nivelCls   = { critico:'crit-critica', alta:'crit-alta', media:'crit-media' }[nivel] || 'crit-media';
+    const accordionId = `gl-prob-acc-${idx}`;
+
+    // Linha do tempo de dias (últimos 7 dias)
+    const hoje = new Date();
+    let timelineHTML = '';
+    for (let d = 6; d >= 0; d--) {
+      const dia = new Date(hoje); dia.setDate(hoje.getDate() - d);
+      const dStr = dia.toISOString().split('T')[0];
+      const temOcorr = p.allDates.includes(dStr);
+      const label = dia.getDate() + '/' + pad(dia.getMonth() + 1);
+      timelineHTML += `<div class="gl-tl-day ${temOcorr ? 'gl-tl-active' : ''}" title="${label}${temOcorr ? ' — ocorrência' : ''}"></div>`;
+    }
+
+    // Accordion: unidades com detratores, por contagem desc
+    const detByUnit = {};
+    p.tRecs.filter(r => r.tipo_nps === 'Detrator')
+      .forEach(r => {
+        const u = r.unidade_padronizada || '—';
+        if (!detByUnit[u]) detByUnit[u] = [];
+        detByUnit[u].push(r);
+      });
+    const unitsSorted = Object.entries(detByUnit)
+      .sort((a, b) => b[1].length - a[1].length);
+
+    const accordionHTML = unitsSorted.length ? unitsSorted.map(([u, uRecs]) => {
+      const comments = uRecs
+        .sort((a, b) => (b._date||0) - (a._date||0))
+        .slice(0, 2)
+        .map(r => {
+          const texto = (r.resumo_ia && r.resumo_ia !== 'Sem comentário') ? r.resumo_ia : r.comentario_original;
+          if (!texto) return '';
+          return `<div class="gl-prob-det-date">${r._date ? r._date.toLocaleDateString('pt-BR') : ''}</div>
+          <div class="gl-prob-det-comment">${esc(texto)}</div>`;
+        }).filter(Boolean).join('');
+      return `<div>
+        <div class="gl-prob-unit-header">
+          <span class="gl-prob-unit-name">${esc(u)}</span>
+          <span class="gl-prob-unit-count">${uRecs.length} detrator${uRecs.length>1?'es':''}</span>
+        </div>
+        ${comments || `<div style="font-size:.7rem;color:var(--gray-400)">Sem comentário registrado.</div>`}
+      </div>`;
+    }).join('') : `<div style="font-size:.72rem;color:var(--gray-400)">Nenhum detrator neste tema.</div>`;
+
+    const detTotal = Object.values(detByUnit).reduce((s, v) => s + v.length, 0);
+
+    return `<div class="gl-prob-card">
+      <div class="gl-prob-card-top">
+        <div class="gl-prob-card-tema">${esc(p.tema)}</div>
+        <div style="display:flex;gap:.4rem;align-items:center;flex-shrink:0">
+          <span class="tag-crit ${nivelCls}" style="font-size:.65rem">${nivelLabel}</span>
+          <span class="gl-rec-badge ${rec.cls}">${rec.badge}</span>
+        </div>
+      </div>
+      <div class="gl-prob-card-meta">
+        <span class="gl-prob-stat"><strong>${p.qtd}</strong> ocorrência${p.qtd>1?'s':''}</span>
+        <span class="gl-prob-stat"><strong>${p.unidades.length}</strong> unidade${p.unidades.length>1?'s':''}</span>
+        ${p.criticos > 0 ? `<span class="gl-prob-stat" style="color:var(--red)"><strong>${p.criticos}</strong> crítico${p.criticos>1?'s':''}</span>` : ''}
+        ${p.comRisco > 0 ? `<span class="gl-prob-stat" style="color:var(--red)"><strong>${p.comRisco}</strong> cancelamento${p.comRisco>1?'s':''}</span>` : ''}
+      </div>
+      <div class="gl-prob-card-units">${esc(unidadesStr)}</div>
+      <div class="gl-prob-card-bottom">
+        <div class="gl-timeline-wrap">
+          <span class="gl-tl-label">Últimos 7 dias</span>
+          <div class="gl-timeline">${timelineHTML}</div>
+          <span class="gl-tl-rec">${rec.label}</span>
+        </div>
+        ${detTotal > 0 ? `<button class="gl-prob-toggle" id="btn-${accordionId}" onclick="toggleProblema('${accordionId}')">▼ ${detTotal} detrator${detTotal>1?'es':''}</button>` : ''}
+      </div>
+      ${p.topAcao ? `<div class="gl-prob-acao">→ ${esc(p.topAcao)}</div>` : ''}
+      <div class="gl-prob-accordion" id="${accordionId}">${accordionHTML}</div>
+    </div>`;
+  }).join('');
+
+  const rec3 = visiveis.filter(p => p.consecDias >= 3).length;
+  const rec2 = visiveis.filter(p => p.consecDias === 2).length;
+  const sub = [
+    rec3 > 0 ? `${rec3} recorrente${rec3>1?'s':''}` : '',
+    rec2 > 0 ? `${rec2} em atenção` : '',
+  ].filter(Boolean).join(' · ');
+
+  return `<div class="gl-section">
+    <div class="gl-section-header">
+      <div class="gl-section-title">Problemas mais recorrentes da rede</div>
+      <div class="gl-section-sub">${sub || visiveis.length + ' temas identificados'}</div>
+    </div>
+    <div class="gl-prob-grid">${rows}</div>
+    <div class="gl-rec-legenda">
+      <span class="gl-rec-badge rec-1">Pontual</span> 1 dia &nbsp;·&nbsp;
+      <span class="gl-rec-badge rec-2">Atenção</span> 2 dias seguidos &nbsp;·&nbsp;
+      <span class="gl-rec-badge rec-3">Recorrente</span> 3+ dias consecutivos
+    </div>
+  </div>`;
+}
+
+// =============================================================================
+// RENDER — RANKING DE UNIDADES (tabela compacta)
+// =============================================================================
+function renderRankingUnidadesGL(recs) {
+  const byUnit = groupBy(recs, r => r.unidade_padronizada);
+  const rows = Object.entries(byUnit)
+    .map(([u, v]) => {
+      const score    = calcPrioScore(v);
+      const level    = getPrioLevel(score);
+      const nps      = calcNPS(v);
+      const criticos = v.filter(r => isCritico(r)).length;
+      const regiao   = v[0]?.regiao || '';
+      const tema     = topTema(v);
+      return { u, v, score, level, nps, criticos, regiao, tema, n: v.length };
+    })
+    .sort((a, b) => (a.nps ?? -999) - (b.nps ?? -999));
+
+  const levelCfg = {
+    critico: { dot:'#DC2626', label:'Crítico' },
+    alta:    { dot:'#F59E0B', label:'Alto'    },
+    media:   { dot:'var(--gl-olive)', label:'Médio' },
+    ok:      { dot:'#15803D', label:'—'       },
+  };
+
+  const tbody = rows.map((item, i) => {
+    const cfg = levelCfg[item.level] || levelCfg.ok;
+    const npsColor = item.nps !== null && item.nps >= META_NPS ? '#15803D' : item.nps !== null && item.nps >= 0 ? '#D97706' : '#DC2626';
+    const npsBg    = item.nps !== null && item.nps >= META_NPS ? '#D1FAE5' : item.nps !== null && item.nps >= 0 ? '#FEF3C7' : '#FEE2E2';
+    return `<tr class="gl-rank-tr" onclick="openUnitPanel('${esc(item.u)}')" title="Ver detalhes">
+      <td><span style="font-size:.72rem;color:var(--gray-400);font-weight:600">${i+1}</span></td>
+      <td>
+        <div style="font-size:.83rem;font-weight:600;color:var(--gray-800)">${esc(item.u)}</div>
+        <div style="font-size:.68rem;color:var(--gray-400)">${esc(item.regiao)}</div>
+      </td>
+      <td><span class="nps-pill" style="background:${npsBg};color:${npsColor};font-size:.75rem">${item.nps !== null ? item.nps + '%' : '—'}</span></td>
+      <td style="text-align:center;font-size:.82rem">${item.n}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:.4rem">
+          <span style="width:8px;height:8px;border-radius:50%;background:${cfg.dot};flex-shrink:0;display:inline-block"></span>
+          <span style="font-size:.72rem;color:var(--gray-600)">${item.level !== 'ok' ? cfg.label : '—'}</span>
+        </div>
+      </td>
+      <td><span class="tag-theme" style="font-size:.68rem">${esc(item.tema || '—')}</span></td>
+      <td style="text-align:center">${item.criticos > 0 ? `<span style="color:var(--red);font-weight:700;font-size:.8rem">⚠ ${item.criticos}</span>` : '<span style="color:var(--gray-300)">—</span>'}</td>
+      <td><span style="font-size:.75rem;color:var(--gl-olive);font-weight:600;cursor:pointer">Ver →</span></td>
+    </tr>`;
+  }).join('');
+
+  return `<div class="gl-section">
+    <div class="gl-section-header">
+      <div class="gl-section-title">Ranking de unidades</div>
+      <div class="gl-section-sub">Ordenadas por prioridade de atenção — clique para ver detalhes</div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden;margin-bottom:0">
+      <div class="table-scroll">
+        <table class="rank-table" style="min-width:620px">
+          <thead><tr>
+            <th>#</th><th>Unidade</th><th>NPS</th>
+            <th style="text-align:center">Resp.</th><th>Atenção</th>
+            <th>Top tema</th><th style="text-align:center">Cancelamentos</th><th></th>
+          </tr></thead>
+          <tbody>${tbody}</tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+}
+
+// =============================================================================
+// RENDER — VISÃO GERAL (orquestrador principal)
+// =============================================================================
+function renderGeralView() {
+  problemasFilter = 'todos';
+  const f   = getFilters();
+  const recs = allRecords.filter(r => applyFilter(r, f));
+  const el  = document.getElementById('view-geral');
+
+  if (!recs.length) {
+    el.innerHTML = `<div class="gl-empty">Nenhum dado encontrado para os filtros selecionados.</div>`;
+    return;
+  }
+
+  // Cálculos base
+  const meses    = [...new Set(allRecords.map(r => r._mesAnoKey))].filter(m => m !== '??').sort();
+  const mesAtual = f.mes || (meses.length ? meses[meses.length - 1] : null);
+  const mesPrev  = prevMesAnoKey(mesAtual);
+  const recsPrev = mesPrev ? allRecords.filter(r => r._mesAnoKey === mesPrev) : [];
+  const nps      = calcNPS(recs);
+  const npsPrev  = calcNPS(recsPrev);
+  const npsDelta = (nps !== null && npsPrev !== null) ? nps - npsPrev : null;
+  const promotores = recs.filter(r => r.tipo_nps === 'Promotor').length;
+  const detratores = recs.filter(r => r.tipo_nps === 'Detrator').length;
+  const neutros    = recs.filter(r => r.tipo_nps === 'Neutro').length;
+  const criticos   = recs.filter(r => isCritico(r)).length;
+  const byUnit     = groupBy(recs, r => r.unidade_padronizada);
+
+  // Análises
+  const problemas   = getProblemasRede(recs);
+  const alertas     = buildAlertas(recs, problemas);
+  const prioridades = buildPrioridades(recs);
+
+  el.innerHTML = `
+    ${renderResumoDestaques(recs)}
+    ${renderPrioridadesHoje(prioridades)}
+    ${renderRankingUnidadesGL(recs)}
+
+    <!-- EVOLUÇÃO -->
+    <div class="gl-section">
+      <div class="gl-section-header">
+        <div class="gl-section-title">Evolução no período</div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title"><span class="dot" style="background:var(--gl-olive)"></span>NPS acumulado por dia</div>
+          <div class="chart-wrap"><canvas id="chart-nps-day"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="dot" style="background:var(--gl-brown)"></span>Volume de respostas por dia</div>
+          <div class="chart-wrap"><canvas id="chart-vol-day"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DISTRIBUIÇÃO DE TEMAS -->
+    <div class="gl-section">
+      <div class="gl-section-header">
+        <div class="gl-section-title">Distribuição de temas</div>
+        <div class="gl-section-sub">Top 14 temas — volume por tipo de resposta</div>
+      </div>
+      <div class="card" style="margin-bottom:0">
+        <div class="chart-wrap-xl"><canvas id="chart-temas"></canvas></div>
+      </div>
+    </div>
+  `;
+
+  setTimeout(() => {
+    renderNPSDayChart(recs);
+    renderVolDayChart(recs);
+    renderTemasChart(recs);
+  }, 50);
+}
+
+// =============================================================================
+// NPS BAR
+// =============================================================================
+function renderNPSBar(p, n, d) {
+  const total = p + n + d || 1;
+  const pct = v => ((v / total) * 100).toFixed(1);
+  return `<div class="card nps-bar-wrap" style="margin-bottom:1.25rem;padding:.8rem 1.25rem">
+    <div class="nps-bar-labels">
+      <span style="color:var(--red)">Detratores ${pct(d)}%</span>
+      <span style="color:var(--amber)">Neutros ${pct(n)}%</span>
+      <span style="color:var(--green-mid)">Promotores ${pct(p)}%</span>
+    </div>
+    <div class="nps-bar">
+      <div class="nps-bar-det" style="width:${pct(d)}%"></div>
+      <div class="nps-bar-neu" style="width:${pct(n)}%"></div>
+      <div class="nps-bar-pro" style="width:${pct(p)}%"></div>
+    </div>
+  </div>`;
+}
+
+// =============================================================================
+// TOP 5 PIORES (mês atual) — NPS primeiro, depois Respostas
+// =============================================================================
+function renderTopPioresGeral(recs, mesAtual) {
+  const byUnit = groupBy(recs, r => r.unidade_padronizada);
+  const sorted = Object.entries(byUnit)
+    .filter(([,v]) => v.length >= 2)
+    .map(([u, v]) => ({ u, nps: calcNPS(v), n: v.length, tema: topTema(v) }))
+    .sort((a, b) => a.nps - b.nps)
+    .slice(0, 5);
+
+  const titulo = mesAtual ? `Top 5 Piores — ${fmtMesAno(mesAtual)}` : 'Top 5 Piores — Todos os Meses';
+  const rows = sorted.map((item, i) => `<tr>
+    <td><span class="rank-num">${i + 1}</span></td>
+    <td><strong>${esc(item.u)}</strong><br><span style="font-size:.72rem;color:var(--gray-400)">${esc(item.tema)}</span></td>
+    <td><span class="nps-pill ${npsClass(item.nps)}">${item.nps !== null ? item.nps + '%' : '—'}</span></td>
+    <td style="text-align:center;color:var(--gray-500)">${item.n}</td>
+  </tr>`).join('');
+
+  return `<div class="card top5-card-atual">
+    <div class="card-title">
+      <span class="dot" style="background:#DC2626"></span>
+      <span>${esc(titulo)}</span>
+      <span style="margin-left:auto;font-size:.7rem;background:#FEE2E2;color:#991B1B;padding:.15rem .45rem;border-radius:4px;font-weight:600">Período do mês</span>
+    </div>
+    ${sorted.length === 0 ? '<div class="empty">Dados insuficientes (mín. 2 resp./unidade)</div>' : `
+    <table class="rank-table">
+      <thead><tr><th>#</th><th>Unidade</th><th>NPS</th><th style="text-align:center">Resp.</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`}
+  </div>`;
+}
+
+// =============================================================================
+// TOP 5 PIORES (últimos 10 dias) — NPS primeiro, depois Respostas
+// =============================================================================
+function renderTopPioresRecentes(recs) {
+  const today = new Date();
+  const cutoff = new Date(today.getTime() - 10 * 24 * 60 * 60 * 1000);
+  const recent = recs.filter(r => r._date && r._date >= cutoff);
+  const pool = recent.length >= 10 ? recent : recs;
+  const label = recent.length >= 10 ? 'Últimos 10 Dias' : 'Período Completo';
+
+  const byUnit = groupBy(pool, r => r.unidade_padronizada);
+  const sorted = Object.entries(byUnit)
+    .filter(([,v]) => v.length >= 2)
+    .map(([u, v]) => ({ u, nps: calcNPS(v), n: v.length, tema: topTema(v) }))
+    .sort((a, b) => a.nps - b.nps)
+    .slice(0, 5);
+
+  const rows = sorted.map((item, i) => `<tr>
+    <td><span class="rank-num">${i + 1}</span></td>
+    <td><strong>${esc(item.u)}</strong><br><span style="font-size:.72rem;color:var(--gray-400)">${esc(item.tema)}</span></td>
+    <td><span class="nps-pill ${npsClass(item.nps)}">${item.nps !== null ? item.nps + '%' : '—'}</span></td>
+    <td style="text-align:center;color:var(--gray-500)">${item.n}</td>
+  </tr>`).join('');
+
+  return `<div class="card top5-card-recente">
+    <div class="card-title">
+      <span class="dot" style="background:#D97706"></span>
+      <span>Top 5 Piores — ${esc(label)}</span>
+      <span style="margin-left:auto;font-size:.7rem;background:#FEF3C7;color:#92400E;padding:.15rem .45rem;border-radius:4px;font-weight:600">Tendência recente</span>
+    </div>
+    ${sorted.length === 0 ? '<div class="empty">Dados insuficientes</div>' : `
+    <table class="rank-table">
+      <thead><tr><th>#</th><th>Unidade</th><th>NPS</th><th style="text-align:center">Resp.</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`}
+  </div>`;
+}
+
+// =============================================================================
+// PROBLEMAS URGENTES — card completo (filtros + conteúdo)
+// =============================================================================
+function renderProblemasCard(recs) {
+  const urgentes = getUrgentes(recs);
+  const temas = [...new Set(urgentes.map(r => r.tema_principal_ia).filter(Boolean))].sort();
+
+  const filterBtns = `<div class="chart-filter-btns" style="margin-bottom:.75rem">
+    <button class="cfbtn prob-filter-btn ${problemasFilter === 'todos' ? 'active-tema' : ''}" data-tema="todos" onclick="setProbFilter('todos')">Todos</button>
+    ${temas.map(t => `<button class="cfbtn prob-filter-btn ${problemasFilter === t ? 'active-tema' : ''}" data-tema="${esc(t)}" onclick="setProbFilter('${esc(t)}')">${esc(t)}</button>`).join('')}
+  </div>`;
+
+  const explain = `<div class="prob-explain">
+    Inclui respostas com <strong>criticidade Alta ou Crítica</strong> e/ou que <strong>requerem ação imediata</strong> segundo a IA.
+    Ordenadas por gravidade e agrupadas por unidade. Total: <strong>${urgentes.length}</strong> ocorrências.
+  </div>`;
+
+  return filterBtns + explain + `<div id="prob-content">${renderProblemasConteudo(recs)}</div>`;
+}
+
+function getUrgentes(recs) {
+  return recs.filter(r =>
+    r.resumo_ia && r.resumo_ia !== 'Sem comentário' &&
+    (r.requer_acao || isCritico(r) || r.criticidade_ia === 'Alta' || r.criticidade_ia === 'Crítica')
+  );
+}
+
+function renderProblemasConteudo(recs) {
+  const pOrd = { 'Crítica': 0, 'Alta': 1, 'Média': 2, 'Baixa': 3 };
+  let urgentes = getUrgentes(recs);
+
+  // Apply tema filter
+  if (problemasFilter && problemasFilter !== 'todos') {
+    urgentes = urgentes.filter(r => r.tema_principal_ia === problemasFilter);
+  }
+
+  // Sort: criticidade → unidade → data desc
+  urgentes.sort((a, b) => {
+    const cDiff = (pOrd[a.criticidade_ia] ?? 3) - (pOrd[b.criticidade_ia] ?? 3);
+    if (cDiff !== 0) return cDiff;
+    const uDiff = (a.unidade_padronizada || '').localeCompare(b.unidade_padronizada || '', 'pt-BR');
+    if (uDiff !== 0) return uDiff;
+    return (b._date || 0) - (a._date || 0);
+  });
+
+  const visible = urgentes.slice(0, 25);
+  if (!visible.length) return '<div class="empty">Nenhum problema encontrado para este filtro</div>';
+
+  const rows = visible.map(r => {
+    const critClass = (r.criticidade_ia || 'baixa').toLowerCase().replace(/[íi]/g,'i').replace(/[eé]/g,'e').replace(/ê/g,'e');
+    const critTag = `<span class="tag-crit crit-${critClass}">${esc(r.criticidade_ia || '—')}</span>`;
+    const criticoTag = isCritico(r) ? `<span class="kpi-badge badge-red">Crítico</span>` : '';
+    const recTag = r.problema_recorrente ? `<span class="kpi-badge badge-amber">Recorrente</span>` : '';
+    const ncClass = r.tipo_nps === 'Promotor' ? 'nc-promotor' : r.tipo_nps === 'Detrator' ? 'nc-detrator' : 'nc-neutro';
+    const temaTag = r.tema_principal_ia ? `<span class="tag-theme">${esc(r.tema_principal_ia)}</span>` : '';
+    return `<tr>
+      <td><span class="nota-circle ${ncClass}" style="display:inline-flex;width:24px;height:24px;font-size:.72rem">${r._nota}</span></td>
+      <td style="font-size:.8rem;line-height:1.4">${esc(r.resumo_ia)}</td>
+      <td><strong style="font-size:.78rem">${esc(r.unidade_padronizada)}</strong></td>
+      <td style="white-space:nowrap;font-size:.73rem;color:var(--gray-400)">${r._date ? r._date.toLocaleDateString('pt-BR') : ''}</td>
+      <td>${temaTag}</td>
+      <td>${critTag} ${criticoTag} ${recTag}</td>
+    </tr>`;
+  }).join('');
+
+  return `<div class="table-scroll"><table class="rank-table">
+    <thead><tr><th>Nota</th><th>Problema</th><th>Unidade</th><th>Data</th><th>Tema</th><th>Status</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+
+// =============================================================================
+// KEYWORDS PANEL (ao lado da distribuição de temas)
+// =============================================================================
+function renderKeywordsPanel(recs) {
+  const withTema = recs.filter(r => r.tema_principal_ia && !TEMAS_EXCLUIDOS.includes(r.tema_principal_ia));
+  const byTema = groupBy(withTema, r => r.tema_principal_ia);
+  const sorted = Object.entries(byTema).sort((a, b) => b[1].length - a[1].length).slice(0, 14);
+
+  const items = sorted.map(([tema, v]) => {
+    const kwSet = new Set();
+    v.forEach(r => {
+      const kws = r.palavras_chave_ia || r.keywords_ia || r.keywords || '';
+      String(kws).split(/[,;|]+/).map(k => k.trim()).filter(k => k.length > 2).forEach(k => kwSet.add(k));
+    });
+    const kws = [...kwSet].slice(0, 7);
+    return { tema, kws };
+  });
+
+  const hasKeywords = items.some(i => i.kws.length > 0);
+  if (!hasKeywords) return `<div style="font-size:.75rem;color:var(--gray-400);padding:.5rem;text-align:center">Palavras-chave indisponíveis nos dados</div>`;
+
+  return `<div style="font-size:.72rem;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.5rem">Palavras-chave por tema</div>
+  <div class="keywords-panel">${items.map(item => `
+    <div class="kw-item">
+      <div class="kw-tema">${esc(item.tema)}</div>
+      <div class="kw-tags">
+        ${item.kws.length ? item.kws.map(k => `<span class="kw-tag">${esc(k)}</span>`).join('') : '<span style="font-size:.68rem;color:var(--gray-400)">—</span>'}
+      </div>
+    </div>
+  `).join('')}</div>`;
+}
+
+// =============================================================================
+// RANKING COMPLETO — sem Nota Média, sem "Sem comentários" como top tema
+// =============================================================================
+function renderRankingTable(recs) {
+  const byUnit = groupBy(recs, r => r.unidade_padronizada);
+  const rows = Object.entries(byUnit)
+    .map(([u, v]) => {
+      const nps = calcNPS(v);
+      const criticos = v.filter(r => isCritico(r)).length;
+      const tema = topTema(v); // already excludes TEMAS_EXCLUIDOS
+      const regiao = v[0]?.regiao || '';
+      return { u, nps, criticos, n: v.length, tema, regiao };
+    })
+    .sort((a, b) => (b.nps ?? -999) - (a.nps ?? -999));
+
+  const rows_html = rows.map((item, i) => {
+    const metaStatus = item.nps !== null && item.nps >= META_NPS
+      ? '<span class="badge-green kpi-badge">✓ Meta</span>'
+      : '<span class="badge-red kpi-badge">↓ Abaixo</span>';
+    return `<tr>
+      <td><span class="rank-num">${i + 1}</span></td>
+      <td><strong>${esc(item.u)}</strong></td>
+      <td>${esc(item.regiao)}</td>
+      <td style="text-align:center">${item.n}</td>
+      <td style="text-align:center"><span class="nps-pill ${npsClass(item.nps)}">${item.nps !== null ? item.nps + '%' : '—'}</span></td>
+      <td><span class="tag-theme">${esc(item.tema || '—')}</span></td>
+      <td style="text-align:center">${item.criticos > 0 ? `<span style="color:var(--red);font-weight:600">${item.criticos}</span>` : '—'}</td>
+      <td>${metaStatus}</td>
+    </tr>`;
+  }).join('');
+
+  return `<table class="rank-table">
+    <thead><tr>
+      <th>#</th><th>Unidade</th><th>Região</th><th style="text-align:center">Resp.</th>
+      <th style="text-align:center">NPS</th><th>Top Tema</th>
+      <th style="text-align:center">Críticos</th><th>Meta</th>
+    </tr></thead>
+    <tbody>${rows_html}</tbody>
+  </table>`;
+}
+
+// =============================================================================
+// PLANO DE AÇÃO — com botão expandir resumos de IA
+// =============================================================================
+function renderActionPlanGeral(recs) {
+  const urgentes = recs.filter(r => r.acao_sugerida_ia && (r.requer_acao || r.criticidade_ia === 'Alta' || r.criticidade_ia === 'Crítica'));
+  const byAcao = groupBy(urgentes, r => r.acao_sugerida_ia || 'sem-acao');
+
+  const allAcoes = Object.entries(byAcao)
+    .map(([acao, v]) => {
+      const alta = v.filter(r => r.criticidade_ia === 'Alta' || r.criticidade_ia === 'Crítica').length;
+      const prio = alta > 2 ? 'Alta' : alta > 0 ? 'Média' : 'Baixa';
+      const unidadesAfetadas = [...new Set(v.map(r => r.unidade_padronizada))].filter(Boolean);
+      const temas = [...new Set(v.map(r => r.tema_principal_ia).filter(Boolean))];
+      const critico = v.some(r => r.criticidade_ia === 'Crítica');
+      const recorrente = v.some(r => r.problema_recorrente);
+      const qtd = v.length;
+      let tipoProbTag = '';
+      if (critico) tipoProbTag = '<span class="prob-tag prob-critico">Muito Grave</span>';
+      else if (recorrente) tipoProbTag = '<span class="prob-tag prob-recorrente">Muito Recorrente</span>';
+      else if (qtd >= 3) tipoProbTag = '<span class="prob-tag prob-repetido">Repetido</span>';
+      else tipoProbTag = '<span class="prob-tag prob-novo">Novo</span>';
+      const resumos = v.filter(r => r.resumo_ia && r.resumo_ia !== 'Sem comentário');
+      return { acao, prio, qtd, unidades: unidadesAfetadas, temas, tipoProbTag, resumos };
+    })
+    .sort((a, b) => {
+      const order = { 'Alta': 0, 'Média': 1, 'Baixa': 2 };
+      return (order[a.prio] || 2) - (order[b.prio] || 2);
+    })
+    .slice(0, 12);
+
+  if (!allAcoes.length) return '<div class="empty">Nenhuma ação identificada nos dados filtrados.</div>';
+
+  const rows = allAcoes.map((a, idx) => {
+    const uStr = a.unidades.slice(0, 4).join(', ') + (a.unidades.length > 4 ? ` +${a.unidades.length - 4}` : '');
+    const temasStr = a.temas.slice(0, 2).map(t => `<span class="tag-theme">${esc(t)}</span>`).join(' ');
+    const sumId = `sum-${idx}`;
+
+    const sumsHTML = a.resumos.slice(0, 8).map(r =>
+      `<div class="sum-item">
+        <span class="sum-item-unit">${esc(r.unidade_padronizada || '')}${r._date ? ' · ' + r._date.toLocaleDateString('pt-BR') : ''}</span>
+        "${esc(r.resumo_ia)}"
+      </div>`
+    ).join('');
+
+    return `<tr>
+      <td>${temasStr}</td>
+      <td style="font-size:.79rem;max-width:260px">${esc(a.acao)}</td>
+      <td><span style="font-size:.72rem;color:var(--gray-500)">${esc(uStr)}</span></td>
+      <td style="text-align:center"><strong>${a.qtd}</strong></td>
+      <td>${a.tipoProbTag}</td>
+      <td><span class="prio-tag prio-${a.prio.toLowerCase()}">${a.prio}</span></td>
+      <td>${a.resumos.length > 0 ? `<button class="btn-ver-resumos" onclick="toggleResumos('${sumId}')">💬 ${a.resumos.length} resumo${a.resumos.length > 1 ? 's' : ''}</button>` : '—'}</td>
+    </tr>
+    <tr id="${sumId}-row" class="action-sum-row" style="display:none">
+      <td colspan="7">
+        <div class="action-sum-inner">
+          <div style="font-size:.72rem;font-weight:600;color:var(--gray-500);margin-bottom:.35rem;text-transform:uppercase;letter-spacing:.04em">Resumos de IA — problemas que geraram esta ação</div>
+          ${sumsHTML || '<div class="empty" style="padding:.5rem">Sem resumos disponíveis</div>'}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  return `<table class="action-table">
+    <thead><tr>
+      <th>Tema</th><th>Ação Sugerida</th><th>Unidades</th>
+      <th style="text-align:center">Ocorr.</th><th>Tipo</th><th>Prioridade</th><th>Resumos</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+function toggleResumos(id) {
+  const row = document.getElementById(id + '-row');
+  if (!row) return;
+  row.style.display = row.style.display === 'none' ? '' : 'none';
+}
+
+// =============================================================================
+// COMENTÁRIOS CRÍTICOS — tab view
+// =============================================================================
+function renderCriticosView() {
+  const f = getFilters();
+  const recs = allRecords.filter(r => applyFilter(r, f));
+  const criticos = recs.filter(r => isCritico(r)).sort((a, b) => (b._date || 0) - (a._date || 0));
+  const el = document.getElementById('view-criticos');
+
+  const explainHTML = `<div class="criticos-explain">
+    <strong>O que são Comentários Críticos?</strong>
+    São respostas onde o cliente expressa <strong>intenção explícita de cancelamento ou abandono</strong>.
+    A identificação considera frases como: "vou sair", "não vou renovar", "nunca mais", "vou cancelar", "mudar pra concorrência", "não volto mais", entre outras com mesmo sentido.
+    Esses clientes demandam <strong>contato e ação imediata</strong>.
+  </div>`;
+
+  // Tab also shows the count badge
+  const tabBtn = document.getElementById('tab-criticos');
+  if (tabBtn) tabBtn.textContent = `⚠ Comentários Críticos${criticos.length ? ' (' + criticos.length + ')' : ''}`;
+
+  if (!criticos.length) {
+    el.innerHTML = explainHTML + `<div class="card"><div class="empty">Nenhum comentário crítico no período selecionado.</div></div>`;
+    return;
+  }
+
+  const rows = criticos.map((r, i) => {
+    const ncClass = r.tipo_nps === 'Promotor' ? 'nc-promotor' : r.tipo_nps === 'Detrator' ? 'nc-detrator' : 'nc-neutro';
+    const critClass = (r.criticidade_ia || 'baixa').toLowerCase().replace(/[íi]/g,'i').replace(/[eé]/g,'e').replace(/ê/g,'e');
+    const critTag = `<span class="tag-crit crit-${critClass}" style="font-size:.68rem">${esc(r.criticidade_ia || '—')}</span>`;
+    const temaTag = r.tema_principal_ia && !TEMAS_EXCLUIDOS.includes(r.tema_principal_ia)
+      ? `<span class="tag-theme" style="font-size:.68rem">${esc(r.tema_principal_ia)}</span>` : '';
+    return `<tr>
+      <td style="color:var(--gray-400);font-size:.78rem">${i+1}</td>
+      <td><strong style="font-size:.8rem">${esc(r.unidade_padronizada || '—')}</strong></td>
+      <td style="white-space:nowrap;font-size:.78rem;color:var(--gray-500)">${r._date ? r._date.toLocaleDateString('pt-BR') : '—'}</td>
+      <td><span class="nota-circle ${ncClass}" style="display:inline-flex;width:26px;height:26px;font-size:.72rem">${r._nota}</span></td>
+      <td>${critTag} ${temaTag}</td>
+      <td style="font-size:.8rem;line-height:1.45;max-width:480px">${esc(r.comentario_original || '—')}</td>
+    </tr>`;
+  }).join('');
+
+  el.innerHTML = explainHTML + `
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:#DC2626"></span>
+        ${criticos.length} comentário${criticos.length !== 1 ? 's' : ''} crítico${criticos.length !== 1 ? 's' : ''} identificado${criticos.length !== 1 ? 's' : ''}
+      </div>
+      <div class="table-scroll">
+        <table class="criticos-table">
+          <thead><tr>
+            <th>#</th><th>Unidade</th><th>Data</th><th>Nota</th><th>Gravidade / Tema</th><th>Comentário</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+// =============================================================================
+// CHARTS — VISÃO GERAL
+// =============================================================================
+function renderNPSDayChart(recs) {
+  // NPS acumulado: do início do período até cada dia
+  const byDay = groupBy(recs, r => r._date ? r._date.toISOString().split('T')[0] : null);
+  const sortedDays = Object.keys(byDay).filter(Boolean).sort();
+  if (!sortedDays.length) return;
+
+  const labels = sortedDays.map(d => {
+    const dt = new Date(d + 'T12:00:00');
+    return dt.toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit' });
+  });
+
+  // Acumulado: todos os registros do início até o dia inclusive
+  const npsData = sortedDays.map(day => {
+    const cumRecs = recs.filter(r => r._date && r._date.toISOString().split('T')[0] <= day);
+    return calcNPS(cumRecs);
+  });
+
+  newChart('nps-day', 'chart-nps-day', 'line', {
+    labels,
+    datasets: [
+      {
+        label: 'NPS acumulado (%)',
+        data: npsData,
+        borderColor: '#0284C7',
+        backgroundColor: 'rgba(2,132,199,.1)',
+        borderWidth: 2.5,
+        pointBackgroundColor: npsData.map(v => v !== null && v >= META_NPS ? '#15803D' : '#DC2626'),
+        pointRadius: 5,
+        tension: 0.3,
+        fill: true,
+        order: 1,
+      },
+      {
+        label: `Meta (${META_NPS}%)`,
+        data: labels.map(() => META_NPS),
+        borderColor: '#D97706',
+        borderWidth: 1.5,
+        borderDash: [6, 4],
+        pointRadius: 0,
+        tension: 0,
+        fill: false,
+        order: 0,
+      },
+    ],
+  }, {
+    plugins: {
+      legend: { display: true, labels: { font:{size:10}, boxWidth:12, padding:12 } },
+      tooltip: { callbacks: { label: ctx => ctx.dataset.label === `Meta (${META_NPS}%)` ? `Meta: ${META_NPS}%` : 'NPS acumulado: ' + ctx.parsed.y + '%' } },
+    },
+    scales: {
+      y: { suggestedMin: -100, suggestedMax: 100, ticks: { font:{size:10}, callback: v => v+'%' }, grid: { color:'rgba(0,0,0,.05)' } },
+      x: { ticks: { font:{size:10}, autoSkip:false, maxRotation:45 }, grid: { display:false } },
+    },
+  });
+}
+
+function renderVolDayChart(recs) {
+  const byDay = groupBy(recs, r => r._date ? r._date.toISOString().split('T')[0] : null);
+  const sortedDays = Object.keys(byDay).filter(Boolean).sort();
+  const labels = sortedDays.map(d => {
+    const dt = new Date(d + 'T12:00:00');
+    return dt.toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit' });
+  });
+  const pData = sortedDays.map(d => byDay[d].filter(r => r.tipo_nps === 'Promotor').length);
+  const nData = sortedDays.map(d => byDay[d].filter(r => r.tipo_nps === 'Neutro').length);
+  const dData = sortedDays.map(d => byDay[d].filter(r => r.tipo_nps === 'Detrator').length);
+
+  newChart('vol-day', 'chart-vol-day', 'bar', {
+    labels,
+    datasets: [
+      { label:'Promotores', data:pData, backgroundColor:'#2E7D5E', borderRadius:3 },
+      { label:'Neutros',    data:nData, backgroundColor:'#D4920A', borderRadius:3 },
+      { label:'Detratores', data:dData, backgroundColor:'#C0392B', borderRadius:3 },
+    ],
+  }, {
+    _showStackedTotal: true,
+    plugins: {
+      legend: { position:'top', labels:{ font:{size:10}, boxWidth:10 } },
+    },
+    scales: {
+      x: { stacked:true, ticks:{ font:{size:10}, autoSkip:false, maxRotation:45 }, grid:{ display:false } },
+      y: { stacked:true, ticks:{ font:{size:10} }, grid:{ color:'rgba(0,0,0,.04)' } },
+    },
+  });
+}
+
+function renderTemasChart(recs) {
+  const withTema = recs.filter(r => r.tema_principal_ia && !TEMAS_EXCLUIDOS.includes(r.tema_principal_ia));
+  const byTema = groupBy(withTema, r => r.tema_principal_ia);
+  const sorted = Object.entries(byTema).sort((a, b) => b[1].length - a[1].length).slice(0, 14);
+  const labels = sorted.map(([t]) => t);
+  const npsData = sorted.map(([, v]) => calcNPS(v));
+
+  const pData = sorted.map(([, v]) => v.filter(r => r.tipo_nps === 'Promotor').length);
+  const nData = sorted.map(([, v]) => v.filter(r => r.tipo_nps === 'Neutro').length);
+  const dData = sorted.map(([, v]) => v.filter(r => r.tipo_nps === 'Detrator').length);
+
+  newChart('temas', 'chart-temas', 'bar', {
+    labels,
+    datasets: [
+      { label:'Promotores', data:pData, backgroundColor:'#2E7D5E', borderRadius:0 },
+      { label:'Neutros',    data:nData, backgroundColor:'#D4920A', borderRadius:0 },
+      { label:'Detratores', data:dData, backgroundColor:'#C0392B', borderRadius:0 },
+    ],
+  }, {
+    indexAxis: 'y',
+    plugins: {
+      legend: { position:'top', labels:{ font:{size:10}, boxWidth:10, padding:16 } },
+      tooltip: {
+        callbacks: {
+          afterBody: items => {
+            const i = items[0]?.dataIndex;
+            return i !== undefined ? `NPS do tema: ${npsData[i] !== null ? npsData[i]+'%' : '—'}` : '';
+          },
+        },
+      },
+    },
+    scales: {
+      x: { stacked:true, ticks:{ font:{size:10} }, grid:{ color:'rgba(0,0,0,.04)' } },
+      y: { stacked:true, ticks:{ font:{size:10} }, grid:{ display:false } },
+    },
+  });
+}
+
+// =============================================================================
+// VISÃO POR UNIDADE
+// =============================================================================
+function renderUnidadeView() {
+  const el = document.getElementById('view-unidade');
+  const uf = getUnidadeFilters();
+
+  const allUnits = unidades.length
+    ? unidades.map(u => u.unidade)
+    : [...new Set(allRecords.map(r => r.unidade_padronizada).filter(Boolean))].sort();
+  if (!unidadeSelecionada && allUnits.length) unidadeSelecionada = allUnits[0];
+
+  const unitOptHTML = allUnits.map(u =>
+    `<option value="${esc(u)}" ${u === unidadeSelecionada ? 'selected' : ''}>${esc(u)}</option>`
+  ).join('');
+
+  let recs = allRecords.filter(r => r.unidade_padronizada === unidadeSelecionada);
+  if (uf.mes) recs = recs.filter(r => r._mesAnoKey === uf.mes);
+
+  const nps = calcNPS(recs);
+  const nota = calcNotaMedia(recs);
+  const criticos = recs.filter(r => isCritico(r)).length;
+  const promotores = recs.filter(r => r.tipo_nps === 'Promotor').length;
+  const detratores = recs.filter(r => r.tipo_nps === 'Detrator').length;
+  const neutros = recs.filter(r => r.tipo_nps === 'Neutro').length;
+  const regiao = recs[0]?.regiao || (unidades.find(u => u.unidade === unidadeSelecionada)?.regiao) || '';
+
+  el.innerHTML = `
+    <div class="unit-selector-wrap">
+      <span class="unit-filter-label">Unidade:</span>
+      <select class="unit-select" id="unit-select-main" onchange="unidadeSelecionada=this.value;renderUnidadeView()">
+        ${unitOptHTML}
+      </select>
+      ${regiao ? `<span class="unit-chip">📍 ${esc(regiao)}</span>` : ''}
+      <span class="unit-chip">📊 ${recs.length} respostas</span>
+    </div>
+
+    ${criticos > 0 ? `<div class="alert-banner danger"><span class="alert-icon">⚠</span><strong>${criticos} comentário${criticos > 1 ? 's' : ''} crítico${criticos > 1 ? 's' : ''}</strong> nesta unidade — intenção de cancelamento detectada.</div>` : ''}
+
+    <div class="sentiment-grid">
+      <div class="sent-card pos">
+        <div class="sent-label">Promotores</div>
+        <div class="sent-value">${promotores}</div>
+        <div class="sent-sub">${recs.length > 0 ? (promotores/recs.length*100).toFixed(1)+'%' : '—'}</div>
+      </div>
+      <div class="sent-card neg">
+        <div class="sent-label">Detratores</div>
+        <div class="sent-value">${detratores}</div>
+        <div class="sent-sub">${recs.length > 0 ? (detratores/recs.length*100).toFixed(1)+'%' : '—'}</div>
+      </div>
+      <div class="sent-card neu">
+        <div class="sent-label">Neutros</div>
+        <div class="sent-value">${neutros}</div>
+        <div class="sent-sub">${recs.length > 0 ? (neutros/recs.length*100).toFixed(1)+'%' : '—'}</div>
+      </div>
+      <div class="sent-card nps">
+        <div class="sent-label">NPS</div>
+        <div class="sent-value">${nps !== null ? nps + '%' : '—'}</div>
+        <div class="sent-sub">Meta: ${META_NPS}% ${nps !== null && nps >= META_NPS ? '✓' : '↓'}</div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-bottom:1.25rem">
+      <div class="kpi-card">
+        <div class="kpi-label">Nota Média</div>
+        <div class="kpi-value">${nota.toFixed(1)}</div>
+        <div class="kpi-sub">Escala 0–10</div>
+      </div>
+      <div class="kpi-card ${criticos > 0 ? 'red' : ''}">
+        <div class="kpi-label">Coment. Críticos</div>
+        <div class="kpi-value">${criticos}</div>
+        <div class="kpi-sub">${recs.length > 0 ? (criticos/recs.length*100).toFixed(1) : 0}% das resp.</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:1.25rem">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
+        <span style="font-size:.82rem;font-weight:600;color:var(--gray-600)">Progresso em relação à meta (${META_NPS}%)</span>
+        <span style="font-size:.82rem;font-weight:700;color:${nps !== null && nps >= META_NPS ? 'var(--green-mid)' : 'var(--red)'}">
+          ${nps !== null ? (nps >= META_NPS ? '+' + (nps - META_NPS) + 'pp acima' : (nps - META_NPS) + 'pp abaixo') : '—'}
+        </span>
+      </div>
+      <div class="meta-bar-track">
+        <div class="meta-bar-fill" style="width:${Math.min(Math.max((nps||0)+100,0)/2,100)}%;background:${nps !== null && nps >= META_NPS ? 'var(--green-mid)' : 'var(--red)'}"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:.7rem;color:var(--gray-400);margin-top:.25rem">
+        <span>-100%</span><span>0%</span><span>Meta ${META_NPS}%</span><span>+100%</span>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:var(--gl-olive)"></span>Respostas por Dia</div>
+        <div class="chart-wrap"><canvas id="chart-unit-day"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:#1D4ED8"></span>NPS por Dia</div>
+        <div class="chart-wrap"><canvas id="chart-unit-nps"></canvas></div>
+      </div>
+    </div>
+
+    <div class="grid-2-1">
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:#7C3AED"></span>Principal Tema por Dia</div>
+        ${renderTemaPorDia(recs)}
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:#0891B2"></span>Trending Topics</div>
+        ${renderTrendingTopics(recs)}
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:#DC2626"></span>Comentários Críticos</div>
+        ${renderComentariosCriticos(recs)}
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:#F59E0B"></span>Plano de Ação IA</div>
+        ${renderPlanoAcaoUnidade(recs)}
+      </div>
+    </div>
+  `;
+
+  setTimeout(() => {
+    renderUnitDayChart(recs);
+    renderUnitNPSChart(recs);
+  }, 50);
+}
+
+// =============================================================================
+// UNIT CHARTS
+// =============================================================================
+function renderUnitDayChart(recs) {
+  const byDay = groupBy(recs, r => r._date ? r._date.toISOString().split('T')[0] : null);
+  const days = Object.keys(byDay).filter(Boolean).sort();
+  const labels = days.map(d => new Date(d + 'T12:00:00').toLocaleDateString('pt-BR', {day:'2-digit',month:'2-digit'}));
+
+  newChart('unit-day', 'chart-unit-day', 'bar', {
+    labels,
+    datasets: [{
+      label: 'Respostas',
+      data: days.map(d => byDay[d].length),
+      backgroundColor: '#686d57',
+      borderRadius: 4,
+    }],
+  }, {
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { ticks:{font:{size:10}}, grid:{color:'rgba(0,0,0,.04)'} },
+      x: { ticks:{font:{size:10},autoSkip:false,maxRotation:45}, grid:{display:false} },
+    },
+  });
+}
+
+function renderUnitNPSChart(recs) {
+  const byDay = groupBy(recs, r => r._date ? r._date.toISOString().split('T')[0] : null);
+  const days = Object.keys(byDay).filter(Boolean).sort();
+  const labels = days.map(d => new Date(d + 'T12:00:00').toLocaleDateString('pt-BR', {day:'2-digit',month:'2-digit'}));
+  const npsData = days.map(d => calcNPS(byDay[d]));
+
+  newChart('unit-nps', 'chart-unit-nps', 'line', {
+    labels,
+    datasets: [{
+      label: 'NPS (%)',
+      data: npsData,
+      borderColor: '#1D4ED8',
+      backgroundColor: 'rgba(29,78,216,.1)',
+      borderWidth: 2.5,
+      pointRadius: 5,
+      pointBackgroundColor: npsData.map(v => v !== null && v >= META_NPS ? '#15803D' : '#DC2626'),
+      tension: 0.3,
+      fill: true,
+    }],
+  }, {
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { suggestedMin:-100, suggestedMax:100, ticks:{font:{size:10},callback:v=>v+'%'}, grid:{color:'rgba(0,0,0,.04)'} },
+      x: { ticks:{font:{size:10},autoSkip:false,maxRotation:45}, grid:{display:false} },
+    },
+  });
+}
+
+// =============================================================================
+// TEMA POR DIA (dot chart)
+// =============================================================================
+function renderTemaPorDia(recs) {
+  const validos = recs.filter(r => r._date && r.tema_principal_ia && !TEMAS_EXCLUIDOS.includes(r.tema_principal_ia));
+  const byDay = groupBy(validos, r => r._date.toISOString().split('T')[0]);
+  const days = Object.keys(byDay).filter(Boolean).sort();
+  if (!days.length) return '<div class="empty">Sem dados de tema por dia</div>';
+
+  const allTemas = [...new Set(validos.map(r => r.tema_principal_ia))].sort();
+  const TEMA_COLORS = ['#686d57','#6d5545','#8a9175','#1D4ED8','#7C3AED','#DC2626','#F59E0B','#0891B2','#DB2777','#059669','#D97706','#4F46E5'];
+  const dayLabels = days.map(d => { const dt = new Date(d+'T12:00:00'); return dt.getDate()+'/'+pad(dt.getMonth()+1); });
+
+  let html = `<div class="dot-chart-wrap"><table class="dot-chart">
+    <thead><tr><td></td>${dayLabels.map(l=>`<th>${l}</th>`).join('')}</tr></thead><tbody>`;
+
+  allTemas.forEach((tema, ti) => {
+    const color = TEMA_COLORS[ti % TEMA_COLORS.length];
+    const cells = days.map(d => {
+      const dr = (byDay[d]||[]).filter(r => r.tema_principal_ia === tema);
+      if (!dr.length) return '<td>·</td>';
+      const hasRisco = dr.some(r => isCritico(r));
+      return `<td><span class="dot" style="background:${hasRisco ? '#DC2626' : color}" title="${dr.length}x ${tema}">${dr.length}</span></td>`;
+    }).join('');
+    html += `<tr><td class="dot-row-label" title="${esc(tema)}">${esc(tema.length>18?tema.slice(0,17)+'…':tema)}</td>${cells}</tr>`;
+  });
+
+  html += `</tbody></table></div>
+    <div style="margin-top:.5rem;font-size:.7rem;color:var(--gray-400)">🔴 = comentário crítico · número = ocorrências no dia</div>`;
+  return html;
+}
+
+// =============================================================================
+// TRENDING TOPICS
+// =============================================================================
+function renderTrendingTopics(recs) {
+  if (!recs.length) return '<div class="empty">Sem dados</div>';
+  const validos = recs.filter(r => r.tema_principal_ia && !TEMAS_EXCLUIDOS.includes(r.tema_principal_ia));
+  const days = [...new Set(validos.filter(r=>r._date).map(r=>r._date.toISOString().split('T')[0]))].sort();
+  const allTemas = [...new Set(validos.map(r => r.tema_principal_ia))];
+  const half = Math.ceil(days.length/2);
+  const recs1 = validos.filter(r=>r._date && days.indexOf(r._date.toISOString().split('T')[0])<half);
+  const recs2 = validos.filter(r=>r._date && days.indexOf(r._date.toISOString().split('T')[0])>=half);
+
+  const rows = allTemas.map(tema => {
+    const total = validos.filter(r=>r.tema_principal_ia===tema).length;
+    const n1 = recs1.filter(r=>r.tema_principal_ia===tema).length;
+    const n2 = recs2.filter(r=>r.tema_principal_ia===tema).length;
+    const trend = days.length<2 ? '→' : n2>n1 ? '↑' : n2<n1 ? '↓' : '→';
+    const cls = trend==='↑' ? 'tend-up' : trend==='↓' ? 'tend-down' : 'tend-eq';
+    return { tema, total, trend, cls };
+  }).sort((a,b)=>b.total-a.total);
+
+  if (!rows.length) return '<div class="empty">Sem temas identificados</div>';
+  return `<table class="trending-table">
+    <thead><tr><th>Tema</th><th style="text-align:center">Total</th><th style="text-align:center">Tendência</th></tr></thead>
+    <tbody>${rows.map(r=>`<tr>
+      <td><span class="tag-theme">${esc(r.tema)}</span></td>
+      <td style="text-align:center;font-weight:600">${r.total}</td>
+      <td style="text-align:center" class="${r.cls}">${r.trend}</td>
+    </tr>`).join('')}</tbody></table>`;
+}
+
+// =============================================================================
+// COMENTÁRIOS CRÍTICOS (unidade)
+// =============================================================================
+function renderComentariosCriticos(recs) {
+  const criticos = recs
+    .filter(r => r.comentario_original && (r.criticidade_ia==='Alta'||r.criticidade_ia==='Crítica'||isCritico(r)||r.requer_acao))
+    .sort((a,b) => {
+      const p = {'Crítica':0,'Alta':1,'Média':2,'Baixa':3};
+      return (p[a.criticidade_ia]||3)-(p[b.criticidade_ia]||3);
+    }).slice(0,20);
+
+  if (!criticos.length) return '<div class="empty">Nenhum comentário crítico nesta unidade</div>';
+
+  return `<div class="comment-list">${criticos.map((r,i) => {
+    const ncClass = r.tipo_nps==='Promotor' ? 'nc-promotor' : r.tipo_nps==='Detrator' ? 'nc-detrator' : 'nc-neutro';
+    const critClass = (r.criticidade_ia||'baixa').toLowerCase().replace(/[íi]/g,'i').replace(/[eé]/g,'e');
+    const critTag = `<span class="tag-crit crit-${critClass}">${esc(r.criticidade_ia||'—')}</span>`;
+    const criticoTag = isCritico(r) ? `<span class="kpi-badge badge-red">Crítico</span>` : '';
+    const acaoTag = r.requer_acao ? `<span class="kpi-badge badge-amber">Ação</span>` : '';
+    const temaTag = r.tema_principal_ia && !TEMAS_EXCLUIDOS.includes(r.tema_principal_ia) ? `<span class="tag-theme">${esc(r.tema_principal_ia)}</span>` : '';
+    return `<div class="comment-card" id="cc-${i}">
+      <div class="comment-header" onclick="toggleComment('cc-${i}')">
+        <span class="nota-circle ${ncClass}">${r._nota}</span>
+        <div class="comment-meta">${critTag}${criticoTag}${acaoTag}${temaTag}
+          <span style="font-size:.72rem;color:var(--gray-400)">${r._date?r._date.toLocaleDateString('pt-BR'):''}</span>
+        </div>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="comment-body">
+        <div>${esc(r.comentario_original)}</div>
+        ${r.resumo_ia?`<div class="comment-resumo">💡 ${esc(r.resumo_ia)}</div>`:''}
+        ${r.acao_sugerida_ia?`<div class="comment-action">➜ ${esc(r.acao_sugerida_ia)}</div>`:''}
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+function toggleComment(id) {
+  document.getElementById(id)?.classList.toggle('open');
+}
+
+// =============================================================================
+// PLANO DE AÇÃO POR UNIDADE
+// =============================================================================
+function renderPlanoAcaoUnidade(recs) {
+  const comAcao = recs.filter(r => r.acao_sugerida_ia && r.requer_acao);
+  const pool = comAcao.length ? comAcao : recs.filter(r => r.acao_sugerida_ia);
+  if (!pool.length) return '<div class="empty">Nenhuma ação sugerida pela IA</div>';
+
+  const byTema = groupBy(pool, r => r.tema_principal_ia || 'Outro');
+  const items = Object.entries(byTema).sort((a,b)=>b[1].length-a[1].length).slice(0,6);
+
+  return items.map(([tema, v]) => {
+    const sample = v.find(r=>r.acao_sugerida_ia)||v[0];
+    const prio = v.some(r=>r.criticidade_ia==='Alta'||r.criticidade_ia==='Crítica') ? 'Alta'
+      : v.some(r=>r.criticidade_ia==='Média') ? 'Média' : 'Baixa';
+    const critico = v.some(r=>r.criticidade_ia==='Crítica');
+    const recorrente = v.some(r=>r.problema_recorrente);
+    const qtd = v.length;
+    let tipoProbTag;
+    if (critico) tipoProbTag = '<span class="prob-tag prob-critico">Muito Grave</span>';
+    else if (recorrente) tipoProbTag = '<span class="prob-tag prob-recorrente">Muito Recorrente</span>';
+    else if (qtd >= 3) tipoProbTag = '<span class="prob-tag prob-repetido">Repetido</span>';
+    else tipoProbTag = '<span class="prob-tag prob-novo">Novo</span>';
+
+    return `<div style="padding:.65rem 0;border-bottom:1px solid var(--gray-100)">
+      <div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.25rem;flex-wrap:wrap">
+        <span class="tag-theme">${esc(tema)}</span>
+        <span class="prio-tag prio-${prio.toLowerCase()}">${prio}</span>
+        ${tipoProbTag}
+        <span style="font-size:.72rem;color:var(--gray-400);margin-left:auto">${qtd} ocorrência${qtd>1?'s':''}</span>
+      </div>
+      <div style="font-size:.8rem;color:var(--gray-600)">${esc(sample?.acao_sugerida_ia||'—')}</div>
+    </div>`;
+  }).join('') || '<div class="empty">Sem ações identificadas</div>';
+}
+
+// =============================================================================
+// UNIT SIDE PANEL
+// =============================================================================
+let _unitPainelUnit = '';
+let _unitPainelTema = 'todos';
+
+function openUnitPanel(unidade) {
+  _unitPainelUnit = unidade;
+  _unitPainelTema = 'todos';
+
+  const uRecs  = allRecords.filter(r => r.unidade_padronizada === unidade);
+  const nps    = calcNPS(uRecs);
+  const regiao = uRecs[0]?.regiao || '';
+
+  document.getElementById('gl-panel-title').textContent = unidade;
+  document.getElementById('gl-panel-subtitle').textContent =
+    `${regiao ? regiao + ' · ' : ''}${uRecs.length} respostas · NPS ${nps !== null ? nps + '%' : '—'}`;
+
+  const temas = [...new Set(
+    uRecs.filter(r => r.tema_principal_ia && !TEMAS_EXCLUIDOS.includes(r.tema_principal_ia))
+         .map(r => r.tema_principal_ia)
+  )].sort();
+
+  const filterBtns = `
+    <div class="gl-painel-filter-bar" id="unit-painel-filters">
+      <button class="gl-painel-filter-btn active" onclick="filterUnitPainel('todos')" data-tema="todos">Todos</button>
+      ${temas.map(t => `<button class="gl-painel-filter-btn" onclick="filterUnitPainel('${esc(t)}')" data-tema="${esc(t)}">${esc(t)}</button>`).join('')}
+    </div>`;
+
+  document.getElementById('gl-panel-body').innerHTML = `
+    <div class="gl-panel-section" style="padding-bottom:0">
+      <div class="gl-panel-section-title">Filtrar por tema</div>
+      ${filterBtns}
+    </div>
+    <div class="gl-panel-section" id="unit-painel-comments" style="padding-top:.75rem">
+      ${renderUnitPainelComments(uRecs, 'todos')}
+    </div>
+    <div style="padding:.75rem 0;border-top:1px solid var(--gl-beige);margin-top:.5rem">
+      <button onclick="unidadeSelecionada='${esc(unidade)}';closePanel();switchView('unidade')" style="width:100%;padding:.6rem;background:var(--gl-olive);color:#fff;border:none;border-radius:var(--radius-md);font-size:.82rem;font-weight:600;cursor:pointer;font-family:inherit">
+        Ver análise completa da unidade →
+      </button>
+    </div>`;
+
+  document.getElementById('gl-panel-overlay').classList.add('open');
+  document.getElementById('gl-panel').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function filterUnitPainel(tema) {
+  _unitPainelTema = tema;
+  document.querySelectorAll('#unit-painel-filters .gl-painel-filter-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tema === tema);
+  });
+  const uRecs = allRecords.filter(r => r.unidade_padronizada === _unitPainelUnit);
+  document.getElementById('unit-painel-comments').innerHTML = renderUnitPainelComments(uRecs, tema);
+}
+
+function renderUnitPainelComments(uRecs, tema) {
+  let filtered = uRecs.filter(r => r.comentario_original || r.resumo_ia);
+  if (tema !== 'todos') filtered = filtered.filter(r => r.tema_principal_ia === tema);
+
+  const ord = {'Crítica':0,'Alta':1,'Média':2,'Baixa':3};
+  filtered.sort((a, b) => {
+    const cDiff = (ord[a.criticidade_ia]||3) - (ord[b.criticidade_ia]||3);
+    if (cDiff !== 0) return cDiff;
+    return (b._date||0) - (a._date||0);
+  });
+
+  if (!filtered.length) {
+    return `<div style="text-align:center;padding:2rem;color:var(--gray-400);font-size:.85rem">Nenhum comentário para este filtro.</div>`;
+  }
+
+  return filtered.map(r => {
+    const critCls = (r.criticidade_ia||'baixa').toLowerCase()
+      .replace(/[íi]/g,'i').replace(/[eé]/g,'e').replace(/ê/g,'e');
+    const ncClass  = r.tipo_nps === 'Promotor' ? 'nc-promotor' : r.tipo_nps === 'Detrator' ? 'nc-detrator' : 'nc-neutro';
+    const cancelBadge = isCritico(r)
+      ? `<span style="background:#FEE2E2;color:#991B1B;font-size:.63rem;font-weight:700;padding:.12rem .4rem;border-radius:3px">Possibilidade de cancelamento</span>` : '';
+    return `<div class="gl-painel-comment-card">
+      <div class="gl-painel-comment-header">
+        <span class="nota-circle ${ncClass}" style="width:24px;height:24px;font-size:.7rem;flex-shrink:0">${r._nota}</span>
+        <span class="tag-crit crit-${critCls}" style="font-size:.63rem">${esc(r.criticidade_ia||'—')}</span>
+        ${r.tema_principal_ia ? `<span class="tag-theme" style="font-size:.63rem">${esc(r.tema_principal_ia)}</span>` : ''}
+        ${cancelBadge}
+        <span style="font-size:.68rem;color:var(--gray-400);margin-left:auto">${r._date ? r._date.toLocaleDateString('pt-BR') : ''}</span>
+      </div>
+      ${r.resumo_ia && r.resumo_ia !== 'Sem comentário'
+        ? `<div class="gl-painel-resumo">💡 ${esc(r.resumo_ia)}</div>` : ''}
+      ${r.comentario_original
+        ? `<div class="gl-painel-comentario">"${esc(r.comentario_original)}"</div>` : ''}
+      ${r.acao_sugerida_ia
+        ? `<div class="gl-painel-acao-item">→ ${esc(r.acao_sugerida_ia)}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function closePanel() {
+  document.getElementById('gl-panel-overlay').classList.remove('open');
+  document.getElementById('gl-panel').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function toggleProblema(id) {
+  const acc = document.getElementById(id);
+  const btn = document.getElementById('btn-' + id);
+  if (!acc || !btn) return;
+  const isOpen = acc.classList.toggle('open');
+  const total = btn.textContent.match(/\d+/)?.[0] || '';
+  const label = btn.textContent.includes('detrator') ? (parseInt(total) > 1 ? 'detratores' : 'detrator') : '';
+  btn.textContent = (isOpen ? '▲ ' : '▼ ') + total + ' ' + label;
+}
+
+let _problemaPainelTema = '';
+let _problemaPainelUnidade = 'todos';
+
+function openProblemaPanel(tema) {
+  const tRecs = allRecords.filter(r => r.tema_principal_ia === tema);
+  if (!tRecs.length) return;
+
+  _problemaPainelTema = tema;
+  _problemaPainelUnidade = 'todos';
+
+  const unidades = [...new Set(tRecs.map(r => r.unidade_padronizada).filter(Boolean))].sort();
+
+  document.getElementById('gl-panel-title').textContent = tema;
+  document.getElementById('gl-panel-subtitle').textContent =
+    `${tRecs.length} ocorrências · ${unidades.length} unidade${unidades.length > 1 ? 's' : ''}`;
+
+  const filterBtns = `
+    <div class="gl-painel-filter-bar" id="problema-painel-filters">
+      <button class="gl-painel-filter-btn active" onclick="filterProblemaPanel('todos')" data-unidade="todos">Todas as unidades</button>
+      ${unidades.map(u => `<button class="gl-painel-filter-btn" onclick="filterProblemaPanel('${esc(u)}')" data-unidade="${esc(u)}">${esc(u)}</button>`).join('')}
+    </div>`;
+
+  document.getElementById('gl-panel-body').innerHTML = `
+    <div class="gl-panel-section" style="padding-bottom:0">
+      <div class="gl-panel-section-title">Filtrar por unidade</div>
+      ${filterBtns}
+    </div>
+    <div class="gl-panel-section" id="problema-painel-comments" style="padding-top:.75rem">
+      ${renderProblemaPainelComments(tRecs, 'todos')}
+    </div>`;
+
+  document.getElementById('gl-panel-overlay').classList.add('open');
+  document.getElementById('gl-panel').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function filterProblemaPanel(unidade) {
+  _problemaPainelUnidade = unidade;
+  document.querySelectorAll('#problema-painel-filters .gl-painel-filter-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.unidade === unidade);
+  });
+  const tRecs = allRecords.filter(r => r.tema_principal_ia === _problemaPainelTema);
+  document.getElementById('problema-painel-comments').innerHTML = renderProblemaPainelComments(tRecs, unidade);
+}
+
+function renderProblemaPainelComments(tRecs, unidade) {
+  let filtered = tRecs.filter(r => r.comentario_original || r.resumo_ia);
+  if (unidade !== 'todos') filtered = filtered.filter(r => r.unidade_padronizada === unidade);
+
+  const ord = {'Crítica':0,'Alta':1,'Média':2,'Baixa':3};
+  filtered.sort((a, b) => {
+    const cDiff = (ord[a.criticidade_ia]||3) - (ord[b.criticidade_ia]||3);
+    if (cDiff !== 0) return cDiff;
+    return (b._date||0) - (a._date||0);
+  });
+
+  if (!filtered.length) {
+    return `<div style="text-align:center;padding:2rem;color:var(--gray-400);font-size:.85rem">Nenhum comentário para este filtro.</div>`;
+  }
+
+  return filtered.map(r => {
+    const critCls = (r.criticidade_ia||'baixa').toLowerCase()
+      .replace(/[íi]/g,'i').replace(/[eé]/g,'e').replace(/ê/g,'e');
+    const ncClass  = r.tipo_nps === 'Promotor' ? 'nc-promotor' : r.tipo_nps === 'Detrator' ? 'nc-detrator' : 'nc-neutro';
+    const cancelBadge = isCritico(r)
+      ? `<span style="background:#FEE2E2;color:#991B1B;font-size:.63rem;font-weight:700;padding:.12rem .4rem;border-radius:3px">Possibilidade de cancelamento</span>` : '';
+    return `<div class="gl-painel-comment-card">
+      <div class="gl-painel-comment-header">
+        <span class="nota-circle ${ncClass}" style="width:24px;height:24px;font-size:.7rem;flex-shrink:0">${r._nota}</span>
+        <span class="tag-crit crit-${critCls}" style="font-size:.63rem">${esc(r.criticidade_ia||'—')}</span>
+        <span style="font-size:.63rem;font-weight:600;color:var(--gray-700)">${esc(r.unidade_padronizada||'')}</span>
+        ${cancelBadge}
+        <span style="font-size:.68rem;color:var(--gray-400);margin-left:auto">${r._date ? r._date.toLocaleDateString('pt-BR') : ''}</span>
+      </div>
+      ${r.resumo_ia && r.resumo_ia !== 'Sem comentário'
+        ? `<div class="gl-painel-resumo">💡 ${esc(r.resumo_ia)}</div>` : ''}
+      ${r.comentario_original
+        ? `<div class="gl-painel-comentario">"${esc(r.comentario_original)}"</div>` : ''}
+      ${r.acao_sugerida_ia
+        ? `<div class="gl-painel-acao-item">→ ${esc(r.acao_sugerida_ia)}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// =============================================================================
+// UTILS
+// =============================================================================
+function show(id, display) { const el=document.getElementById(id); if(el) el.style.display=display||'block'; }
+function hide(id) { const el=document.getElementById(id); if(el) el.style.display='none'; }
+function esc(str) {
+  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>

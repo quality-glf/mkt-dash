@@ -1,0 +1,64 @@
+name: Update Dashboard
+
+on:
+  schedule:
+    # 10h UTC = 7h Brasília (sem horário de verão)
+    - cron: '0 10 * * *'
+  workflow_dispatch:  # permite rodar manualmente pelo GitHub
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install chromium --with-deps
+
+      - name: Clube de Vantagens — coletar dados
+        env:
+          PACTO_EMAIL: ${{ secrets.PACTO_EMAIL }}
+          PACTO_SENHA: ${{ secrets.PACTO_SENHA }}
+        run: |
+          cd greenlife_scraper
+          python scraper.py
+
+      - name: Instagram — coletar métricas semanais
+        env:
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+        run: |
+          cd instagram-metrics
+          python coletar_semanal.py
+
+      - name: Gerar dashboard
+        run: |
+          cd greenlife_scraper
+          python gerar_dashboard.py
+          cp dashboard.html ../docs/index.html
+
+      - name: Commit e push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add greenlife_scraper/dados_greenlife.xlsx \
+                  greenlife_scraper/resumo_macro.xlsx \
+                  instagram-metrics/base_seguidores.xlsx \
+                  instagram-metrics/base_interacoes_total.xlsx \
+                  instagram-metrics/base_interacoes_detalhadas.xlsx \
+                  docs/index.html
+          git diff --cached --quiet && echo "Nenhuma alteracao" || \
+            git commit -m "Dashboard: $(date +'%Y-%m-%d %H:%M UTC')" && git push
