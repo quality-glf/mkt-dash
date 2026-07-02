@@ -9,6 +9,7 @@ on:
 jobs:
   update:
     runs-on: ubuntu-latest
+    timeout-minutes: 40
     permissions:
       contents: write
 
@@ -25,11 +26,14 @@ jobs:
           cache: 'pip'
 
       - name: Install dependencies
+        timeout-minutes: 10
         run: |
           pip install -r requirements.txt
           playwright install chromium --with-deps
 
       - name: Clube de Vantagens — coletar dados
+        timeout-minutes: 20
+        continue-on-error: true
         env:
           PACTO_EMAIL: ${{ secrets.PACTO_EMAIL }}
           PACTO_SENHA: ${{ secrets.PACTO_SENHA }}
@@ -38,6 +42,8 @@ jobs:
           python scraper.py
 
       - name: Instagram — coletar métricas semanais
+        timeout-minutes: 10
+        continue-on-error: true
         env:
           IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
         run: |
@@ -45,6 +51,7 @@ jobs:
           python coletar_semanal.py
 
       - name: Gerar dashboard
+        timeout-minutes: 5
         run: |
           cd greenlife_scraper
           python gerar_dashboard.py
