@@ -23,11 +23,25 @@ BASE_URL = "https://graph.facebook.com/v21.0"
 OUTPUT_DIR = os.path.dirname(__file__)
 
 
+PROFILES_DEFAULT = [
+    {"name": "Academias", "ig_user_id": "17841401365220080"},
+    {"name": "Personal",  "ig_user_id": "17841416847481356"},
+    {"name": "São Paulo", "ig_user_id": "17841476571570247"},
+    {"name": "Family",    "ig_user_id": "17841403226072677"},
+    {"name": "CT",        "ig_user_id": "17841469693904315"},
+]
+
 def load_config():
-    with open(CONFIG_FILE, encoding="utf-8") as f:
-        cfg = json.load(f)
-    if os.environ.get("IG_ACCESS_TOKEN"):
-        cfg["access_token"] = os.environ["IG_ACCESS_TOKEN"]
+    token = os.environ.get("IG_ACCESS_TOKEN")
+    if os.path.exists(CONFIG_FILE):
+        with open(CONFIG_FILE, encoding="utf-8") as f:
+            cfg = json.load(f)
+        if token:
+            cfg["access_token"] = token
+    else:
+        if not token:
+            raise RuntimeError("IG_ACCESS_TOKEN não definido e config.json não encontrado.")
+        cfg = {"access_token": token, "profiles": PROFILES_DEFAULT}
     return cfg
 
 
