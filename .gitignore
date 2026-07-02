@@ -16,6 +16,11 @@ Leads_Pacto_2026.xlsx
 Leads_Pacto_2026_CRM.xlsx
 historico_leads.xlsx
 
+# Projetos fora do escopo deste repo
+nps-greenlife/
+dashboard-executivo/
+READme/
+
 # Python
 __pycache__/
 *.pyc
