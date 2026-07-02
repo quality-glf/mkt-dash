@@ -7,7 +7,9 @@ import asyncio
 import os
 import sys
 import requests
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
+
+BRT = timezone(timedelta(hours=-3))
 from pathlib import Path
 from playwright.async_api import async_playwright
 import openpyxl
@@ -317,7 +319,7 @@ def capturar_parceiros_api(token: str, parc_resumo_page: dict) -> tuple:
 
 def salvar_excel(dashboard, promo_resumo, promo_linhas, parc_resumo, parc_linhas, serie_temporal):
     arquivo = Path(ARQUIVO)
-    agora   = datetime.now().strftime("%d/%m/%Y %H:%M")
+    agora   = datetime.now(BRT).strftime("%d/%m/%Y %H:%M")
 
     wb = openpyxl.load_workbook(arquivo) if arquivo.exists() else openpyxl.Workbook()
 
