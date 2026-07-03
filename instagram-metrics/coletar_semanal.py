@@ -202,11 +202,22 @@ def carregar_ou_criar_wb(path, headers, descricao):
     return wb, ws
 
 
-def linha_existe(ws, semana_label, perfil):
-    for row in ws.iter_rows(min_row=2, values_only=True):
-        if row[0] == semana_label and row[1] == perfil:
-            return True
-    return False
+def encontrar_linha(ws, semana_label, perfil):
+    """Retorna (row_idx, data_fim) se encontrado, senão (None, None)."""
+    for row in ws.iter_rows(min_row=2):
+        if row[0].value == semana_label and row[1].value == perfil:
+            return row[0].row, row[3].value
+    return None, None
+
+
+def remover_linhas(ws, semana_label, perfil):
+    """Remove todas as linhas do semana_label+perfil (de baixo para cima)."""
+    to_delete = [
+        row[0].row for row in ws.iter_rows(min_row=2)
+        if row[0].value == semana_label and row[1].value == perfil
+    ]
+    for r in reversed(to_delete):
+        ws.delete_rows(r)
 
 
 def salvar_wb(wb, ws, path):
@@ -260,9 +271,15 @@ def coletar_semana(data_ini, data_fim, iso_year, iso_week, config):
         name = profile["name"]
         ig_id = profile["ig_user_id"]
 
-        if linha_existe(ws_seg, semana_label, name):
-            print(f"  [{name}] {semana_label} já coletado, pulando (rode com --force para atualizar).")
+        row_idx, existing_fim = encontrar_linha(ws_seg, semana_label, name)
+        if row_idx and existing_fim == data_fim_str:
+            print(f"  [{name}] {semana_label} já atualizado até {data_fim_str}, pulando.")
             continue
+        if row_idx:
+            print(f"  [{name}] {semana_label} existe mas data_fim mudou ({existing_fim} → {data_fim_str}), atualizando...")
+            remover_linhas(ws_seg, semana_label, name)
+            remover_linhas(ws_int, semana_label, name)
+            remover_linhas(ws_det, semana_label, name)
 
         print(f"  [{name}] seguidores...", end=" ", flush=True)
         seg_total = get_seguidores_total(ig_id, token)
