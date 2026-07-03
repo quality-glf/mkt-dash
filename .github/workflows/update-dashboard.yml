@@ -9,7 +9,7 @@ on:
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 60
     permissions:
       contents: write
 
@@ -41,6 +41,15 @@ jobs:
           cd greenlife_scraper
           python scraper.py
 
+      - name: Leads CRM Pacto — coletar dados
+        timeout-minutes: 15
+        continue-on-error: true
+        env:
+          PACTO_TOKENS: ${{ secrets.PACTO_TOKENS }}
+        run: |
+          cd greenlife_scraper
+          python coletar_leads.py
+
       - name: Instagram — coletar métricas semanais
         timeout-minutes: 10
         continue-on-error: true
@@ -63,6 +72,8 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add greenlife_scraper/dados_greenlife.xlsx \
                   greenlife_scraper/resumo_macro.xlsx \
+                  greenlife_scraper/leads_dados.json \
+                  greenlife_scraper/historico_leads.xlsx \
                   instagram-metrics/base_seguidores.xlsx \
                   instagram-metrics/base_interacoes_total.xlsx \
                   instagram-metrics/base_interacoes_detalhadas.xlsx \
