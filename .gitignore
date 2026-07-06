@@ -14,7 +14,7 @@ nps-greenlife/*.txt
 nps-greenlife/*.ps1
 Leads_Pacto_2026.xlsx
 Leads_Pacto_2026_CRM.xlsx
-historico_leads.xlsx
+/historico_leads.xlsx
 
 # Projetos fora do escopo deste repo
 nps-greenlife/
