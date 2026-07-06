@@ -18,7 +18,7 @@ from openpyxl.styles import Font, PatternFill, Alignment
 EMAIL    = os.environ.get("PACTO_EMAIL") or ""
 SENHA    = os.environ.get("PACTO_SENHA") or ""
 URL_SITE = "https://parceirogreenlife.com.br"
-API_BASE = "http://greenlife-backend-v2.deway.com.br/api"
+API_BASE = "https://greenlife-backend-v2.deway.com.br/api"
 ARQUIVO  = "dados_greenlife.xlsx"
 VERDE    = "1B5E20"
 

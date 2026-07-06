@@ -33,15 +33,13 @@ PROFILES_DEFAULT = [
 
 def load_config():
     token = os.environ.get("IG_ACCESS_TOKEN")
+    if not token:
+        raise RuntimeError("IG_ACCESS_TOKEN não definido. Configure o GitHub Secret.")
+    cfg = {"access_token": token, "profiles": PROFILES_DEFAULT}
     if os.path.exists(CONFIG_FILE):
         with open(CONFIG_FILE, encoding="utf-8") as f:
-            cfg = json.load(f)
-        if token:
-            cfg["access_token"] = token
-    else:
-        if not token:
-            raise RuntimeError("IG_ACCESS_TOKEN não definido e config.json não encontrado.")
-        cfg = {"access_token": token, "profiles": PROFILES_DEFAULT}
+            disk = json.load(f)
+        cfg["profiles"] = disk.get("profiles", PROFILES_DEFAULT)
     return cfg
 
 
