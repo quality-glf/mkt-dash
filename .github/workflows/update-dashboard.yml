@@ -9,7 +9,7 @@ on:
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
     permissions:
       contents: write
 
@@ -58,7 +58,7 @@ jobs:
           python scraper.py
 
       - name: Leads CRM Pacto — coletar dados
-        timeout-minutes: 15
+        timeout-minutes: 45
         continue-on-error: true
         env:
           PACTO_TOKENS: ${{ secrets.PACTO_TOKENS }}
@@ -86,14 +86,16 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add --ignore-unmatch \
-                  greenlife_scraper/dados_greenlife.xlsx \
-                  greenlife_scraper/resumo_macro.xlsx \
-                  greenlife_scraper/leads_dados.json \
-                  greenlife_scraper/historico_leads.xlsx \
-                  instagram-metrics/base_seguidores.xlsx \
-                  instagram-metrics/base_interacoes_total.xlsx \
-                  instagram-metrics/base_interacoes_detalhadas.xlsx \
-                  docs/dashboard.html
+          for f in \
+            greenlife_scraper/dados_greenlife.xlsx \
+            greenlife_scraper/resumo_macro.xlsx \
+            greenlife_scraper/leads_dados.json \
+            greenlife_scraper/historico_leads.xlsx \
+            instagram-metrics/base_seguidores.xlsx \
+            instagram-metrics/base_interacoes_total.xlsx \
+            instagram-metrics/base_interacoes_detalhadas.xlsx \
+            docs/dashboard.html; do
+            [ -f "$f" ] && git add "$f"
+          done
           git diff --cached --quiet && echo "Nenhuma alteracao" || \
             git commit -m "Dashboard: $(date +'%Y-%m-%d %H:%M UTC')" && git push
