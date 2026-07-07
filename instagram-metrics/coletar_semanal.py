@@ -26,7 +26,7 @@ OUTPUT_DIR = os.path.dirname(__file__)
 PROFILES_DEFAULT = [
     {"name": "Academias", "ig_user_id": "17841401365220080"},
     {"name": "Personal",  "ig_user_id": "17841416847481356"},
-    {"name": "São Paulo", "ig_user_id": "17841476571570247"},
+    {"name": "São Paulo", "ig_user_id": "17841476571570247", "token_env": "IG_ACCESS_TOKEN_SP"},
     {"name": "Family",    "ig_user_id": "17841403226072677"},
     {"name": "CT",        "ig_user_id": "17841469693904315"},
 ]
@@ -268,6 +268,7 @@ def coletar_semana(data_ini, data_fim, iso_year, iso_week, config):
     for profile in profiles:
         name = profile["name"]
         ig_id = profile["ig_user_id"]
+        token = os.environ.get(profile.get("token_env", ""), config["access_token"]) or config["access_token"]
 
         row_idx, existing_fim = encontrar_linha(ws_seg, semana_label, name)
         if row_idx and existing_fim == data_fim_str:
