@@ -76,6 +76,13 @@ jobs:
           cd instagram-metrics
           python coletar_semanal.py
 
+      - name: Leads — salvar snapshot diário
+        timeout-minutes: 5
+        continue-on-error: true
+        run: |
+          cd greenlife_scraper
+          python salvar_leads_diario.py
+
       - name: Gerar dashboard
         timeout-minutes: 5
         run: |
@@ -95,6 +102,7 @@ jobs:
             instagram-metrics/base_seguidores.xlsx \
             instagram-metrics/base_interacoes_total.xlsx \
             instagram-metrics/base_interacoes_detalhadas.xlsx \
+            greenlife_scraper/leads_diario.xlsx \
             docs/dashboard.html; do
             [ -f "$f" ] && git add "$f"
           done
